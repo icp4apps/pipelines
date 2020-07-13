@@ -4,6 +4,11 @@
 set +x
 set +v
 
+oc > /dev/null 2>&1
+if [ "$?" != "0" ]; then
+   alias oc="kubectl"         
+fi  
+
 display_help() {
  echo "Usage"
  echo "******************************************************"
@@ -86,13 +91,13 @@ namespace=kabanero
 cp -f ${PIPELINE_RESOURCE_FILE} ${CUSTOMIZED_PIPELINE_RESOURCE_FILE}
 sed -i "s|${pipeline_resource_dockerimage_template_text}|${DOCKER_IMAGE}|g" ${CUSTOMIZED_PIPELINE_RESOURCE_FILE}
 sed -i "s|${pipeline_resource_git_resource_template_text}|${APP_REPO}|g" ${CUSTOMIZED_PIPELINE_RESOURCE_FILE}
-oc apply -n ${namespace} -f ${CUSTOMIZED_PIPELINE_RESOURCE_FILE}
+kubectl apply -n ${namespace} -f ${CUSTOMIZED_PIPELINE_RESOURCE_FILE}
 rm -rf ${CUSTOMIZED_PIPELINE_RESOURCE_FILE}
 
 # Manual Pipeline Run
 cp -f ${PIPELINE_RUN_MANUAL_FILE} ${CUSTOMIZED_PIPELINE_RUN_MANUAL_FILE}
 sed -i "s|${pipeline_run_stack_name_template_text}|${stackName}|g" ${CUSTOMIZED_PIPELINE_RUN_MANUAL_FILE}
-oc apply -n ${namespace} -f ${CUSTOMIZED_PIPELINE_RUN_MANUAL_FILE}
+kubectl apply -n ${namespace} -f ${CUSTOMIZED_PIPELINE_RUN_MANUAL_FILE}
 rm -rf ${CUSTOMIZED_PIPELINE_RUN_MANUAL_FILE}
 
 echo "done updating pipelinerun template"
