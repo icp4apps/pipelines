@@ -64,7 +64,6 @@ then
    alias kubectl="oc"
 fi
 
-
 # Docker image location given as input to the script.
 DOCKER_IMAGE=$dockerImage
 
