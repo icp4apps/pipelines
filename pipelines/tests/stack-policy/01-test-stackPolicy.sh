@@ -6,7 +6,7 @@ VARIATION="Variation#01"
 . ./log.sh
 
 # Write mock data from kabanero operator
-cat <<- "EOF" > kubectl_kabanero.txt
+cat <<- "EOF" > /workspace/$gitsource/pipelines/tests/stack-policy/kubectl_kabanero.txt
 {
     "apiVersion": "kabanero.io/v1alpha2",
     "kind": "Kabanero",
@@ -117,7 +117,7 @@ cat <<- "EOF" > kubectl_kabanero.txt
 EOF
 
 # Write mock data from kabanero operator get stack
-cat <<- "EOF" > kubectl_stack.txt
+cat <<- "EOF" > /workspace/$gitsource/pipelines/tests/stack-policy/kubectl_stack.txt
 {
     "apiVersion": "kabanero.io/v1alpha2",
     "kind": "Stack",
@@ -728,7 +728,7 @@ EOF
 
 # This response does double duty, it looks like both a stack image and an application image
 # this is so that we don't have to mock up two different reponses 
-cat <<- "EOF" > skopeo.txt
+cat <<- "EOF" > /workspace/$gitsource/pipelines/tests/stack-policy/skopeo.txt
 {
     "Name": "docker.io/kabanerbeta/java-microprofile",
     "Digest": "sha256:37cdf72ab9589e4b0f1389e1c6acc574a1aa8c9cc2234f6be3fd2e994e1de93f",
@@ -811,17 +811,16 @@ cat <<- "EOF" > skopeo.txt
 EOF
 
 # Write .appsody-config.yamk
-cat <<- "EOF" > .appsody-config.yaml
+cat <<- "EOF" > /workspace/$gitsource/.appsody-config.yaml
 stack: kabanerobeta/java-microprofile:0.2
 EOF
-
-export gitsource=.
 
 #####################################
 # Pre-build stackPolicy enforcement #
 #####################################
 log $INFO "[$VARIATION]: Test pre-build stackPolicy enforcement"
-./mock.sh ./enforce_stack_policy.sh pre-build > enforce_stack_policy.out 2>&1
+
+./mock.sh /workspace/$gitsource/pipelines/docker/kabanero-utils/scripts/enforce_stack_policy.sh pre-build > enforce_stack_policy.out 2>&1
 RC=$?
 cat enforce_stack_policy.out
 if [ "$RC" != "0" ]; then
@@ -841,7 +840,7 @@ rm enforce_stack_policy.out
 # Post-build stackPolicy enforcement #
 ######################################
 log $INFO "[$VARIATION]: Test post-build stackPolicy enforcement"
-./mock.sh ./enforce_stack_policy.sh post-build > enforce_stack_policy.out 2>&1
+./mock.sh /workspace/$gitsource/pipelines/docker/kabanero-utils/scripts/enforce_stack_policy.sh post-build > enforce_stack_policy.out 2>&1
 RC=$?
 cat enforce_stack_policy.out
 if [ "$RC" != "0" ]; then
@@ -861,7 +860,7 @@ rm enforce_stack_policy.out
 # Deploy stackPolicy enforcement #
 ##################################
 log $INFO "[$VARIATION]: Test pre-deploy stackPolicy enforcement"
-./mock.sh ./enforce_deploy_stack_policy.sh > enforce_deploy_stack_policy.out 2>&1
+./mock.sh /workspace/$gitsource/pipelines/docker/kabanero-utils/scripts/enforce_deploy_stack_policy.sh > enforce_deploy_stack_policy.out 2>&1
 RC=$?
 cat enforce_deploy_stack_policy.out
 if [ "$RC" != "0" ]; then
@@ -878,7 +877,7 @@ fi
 rm enforce_deploy_stack_policy.out
 
 # Cleanup 
-rm .appsody-config.yaml
-rm kubectl_kabanero.txt
-rm kubectl_stack.txt
-rm skopeo.txt
+rm /workspace/$gitsource/.appsody-config.yaml
+rm /workspace/$gitsource/pipelines/tests/stack-policy/kubectl_kabanero.txt
+rm /workspace/$gitsource/pipelines/tests/stack-policy/kubectl_stack.txt
+rm /workspace/$gitsource/pipelines/tests/stack-policy/skopeo.txt
