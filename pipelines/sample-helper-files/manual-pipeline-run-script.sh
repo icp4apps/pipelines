@@ -4,11 +4,6 @@
 set +x
 set +v
 
-oc > /dev/null 2>&1
-if [ "$?" != "0" ]; then
-   alias oc="kubectl"         
-fi  
-
 display_help() {
  echo "Usage"
  echo "******************************************************"
@@ -60,6 +55,15 @@ fi
 
 ### Configuration ###
 
+# Handle either oc or kubectl 
+command -v kubectl &>2 /dev/null
+rc=$?
+if [ $rc -ne 0 ]
+then
+   shopt -s expand_aliases
+   alias kubectl="oc"
+fi
+
 # Docker image location given as input to the script.
 DOCKER_IMAGE=$dockerImage
 
@@ -91,7 +95,7 @@ namespace=kabanero
 cp -f ${PIPELINE_RESOURCE_FILE} ${CUSTOMIZED_PIPELINE_RESOURCE_FILE}
 sed -i "s|${pipeline_resource_dockerimage_template_text}|${DOCKER_IMAGE}|g" ${CUSTOMIZED_PIPELINE_RESOURCE_FILE}
 sed -i "s|${pipeline_resource_git_resource_template_text}|${APP_REPO}|g" ${CUSTOMIZED_PIPELINE_RESOURCE_FILE}
-kubectl apply -n ${namespace} -f ${CUSTOMIZED_PIPELINE_RESOURCE_FILE}
+oc apply -n ${namespace} -f ${CUSTOMIZED_PIPELINE_RESOURCE_FILE}
 rm -rf ${CUSTOMIZED_PIPELINE_RESOURCE_FILE}
 
 # Manual Pipeline Run
