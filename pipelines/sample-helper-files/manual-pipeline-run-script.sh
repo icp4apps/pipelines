@@ -55,7 +55,7 @@ fi
 
 ### Configuration ###
 
-# Handle either oc or kubectl 
+# Handle either oc or kubectl
 command -v oc &>2 /dev/null
 rc=$?
 if [ $rc -ne 0 ]
