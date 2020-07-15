@@ -101,7 +101,7 @@ rm -rf ${CUSTOMIZED_PIPELINE_RESOURCE_FILE}
 # Manual Pipeline Run
 cp -f ${PIPELINE_RUN_MANUAL_FILE} ${CUSTOMIZED_PIPELINE_RUN_MANUAL_FILE}
 sed -i "s|${pipeline_run_stack_name_template_text}|${stackName}|g" ${CUSTOMIZED_PIPELINE_RUN_MANUAL_FILE}
-kubectl apply -n ${namespace} -f ${CUSTOMIZED_PIPELINE_RUN_MANUAL_FILE}
+oc apply -n ${namespace} -f ${CUSTOMIZED_PIPELINE_RUN_MANUAL_FILE}
 rm -rf ${CUSTOMIZED_PIPELINE_RUN_MANUAL_FILE}
 
 echo "done updating pipelinerun template"
