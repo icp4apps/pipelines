@@ -55,13 +55,13 @@ fi
 
 ### Configuration ###
 
-# Handle either oc or kubectl 
-command -v kubectl &>2 /dev/null
+# Handle either oc or kubectl
+command -v oc &>2 /dev/null
 rc=$?
 if [ $rc -ne 0 ]
 then
    shopt -s expand_aliases
-   alias kubectl="oc"
+   alias oc="kubectl"
 fi
 
 # Docker image location given as input to the script.
@@ -101,7 +101,7 @@ rm -rf ${CUSTOMIZED_PIPELINE_RESOURCE_FILE}
 # Manual Pipeline Run
 cp -f ${PIPELINE_RUN_MANUAL_FILE} ${CUSTOMIZED_PIPELINE_RUN_MANUAL_FILE}
 sed -i "s|${pipeline_run_stack_name_template_text}|${stackName}|g" ${CUSTOMIZED_PIPELINE_RUN_MANUAL_FILE}
-kubectl apply -n ${namespace} -f ${CUSTOMIZED_PIPELINE_RUN_MANUAL_FILE}
+oc apply -n ${namespace} -f ${CUSTOMIZED_PIPELINE_RUN_MANUAL_FILE}
 rm -rf ${CUSTOMIZED_PIPELINE_RUN_MANUAL_FILE}
 
 echo "done updating pipelinerun template"
