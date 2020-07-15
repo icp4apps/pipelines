@@ -56,12 +56,12 @@ fi
 ### Configuration ###
 
 # Handle either oc or kubectl 
-command -v kubectl &>2 /dev/null
+command -v oc &>2 /dev/null
 rc=$?
 if [ $rc -ne 0 ]
 then
    shopt -s expand_aliases
-   alias kubectl="oc"
+   alias oc="kubectl"
 fi
 
 # Docker image location given as input to the script.
