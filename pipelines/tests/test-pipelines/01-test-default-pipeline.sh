@@ -21,7 +21,7 @@ function retry() {
 }
 
 git_url="https://github.com/smcclem/"
-docker_url="smcclem"
+docker_url="image-registry.openshift-image-registry.svc:5000/kabanero"
 collection=$( date +%s%N  )
 
 cd /workspace/$gitsource/pipelines/incubator/events
