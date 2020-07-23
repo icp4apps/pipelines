@@ -1,13 +1,13 @@
 #Kabanero! on activate substitute Digest for text '@Digest@'
 #
-# This task will build an appsody project specificed in the git-source using `appsody build` 
+# This task will build an appsody project specificed in the git-source using `appsody build`
 # and push the generated application image to the specified image registry. The image can be optionally
-# signed before it's pushed to the registry. 
+# signed before it's pushed to the registry.
 #
 # If the gitops-map configmap is configured, it will also promote the service to the specified gitops repo.
 # If gitops is enabled, a secret called gitops-token also needs to be configured with the token for the gitops repo.
 #
-# Insecure registy access or secure connection to the image registries can be setup by configuring the 
+# Insecure registy access or secure connection to the image registries can be setup by configuring the
 # OpenShift cluster resource.  For more information, refer to https://kabanero.io/guides/working-with-pipelines/#transport-layer-security-tls-verification-for-image-registry-access-in-pipelines
 #
 apiVersion: tekton.dev/v1beta1
@@ -48,7 +48,7 @@ spec:
       value: git-source
     volumeMounts:
     - mountPath: /var/lib/containers
-      name: varlibcontainers     
+      name: varlibcontainers
   - name: build
     # This steps builds the source project using appsody build.
     securityContext:
@@ -71,7 +71,7 @@ spec:
         fi
         echo "[INFO] Completed setup for image registry access."
 
-        # If the image registry URL of the stack image is the external route of the internal registry, change the stack regisry URL to the 
+        # If the image registry URL of the stack image is the external route of the internal registry, change the stack regisry URL to the
         # internal route.  This avoids having to configure additional secrets, certificates etc.
         OUTPUTS_STACK_IMAGE_REGISTRY_URL=$( /scripts/stack_registry_url_setup.sh )
         retVal=$?
@@ -104,7 +104,7 @@ spec:
             exit 1
         fi
         echo "[INFO] Completed appsody build."
-        
+
         echo "[INFO] Copying the generated app-deploy.yaml file to the next task of the pipeline..."
         cp app-deploy.yaml $(outputs.resources.git-source.path)
     env:
@@ -124,13 +124,13 @@ spec:
       - -c
       - |
         /scripts/enforce_stack_policy.sh post-build
-        
+
     env:
     - name: gitsource
       value: git-source
     volumeMounts:
     - mountPath: /var/lib/containers
-      name: varlibcontainers   
+      name: varlibcontainers
   - name: push
     # Push the image built in the build step to the specified image registry.  Optionally sign the image.
     securityContext:
@@ -149,7 +149,7 @@ spec:
            echo "[ERROR] The script failed(/scripts/imageurl_imagename_lowercase.sh) Reason: $OUTPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE" >&2
            exit $retVal
         fi
-        
+
         echo "[INFO] Application image URL = $OUTPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE"
 
         # Configure image registry access in the container by adding it to the insecure registry list or enabling TLS verification
@@ -207,7 +207,7 @@ spec:
     # Promote the service to the configured gitops repository using the `services promote` CLI
     securityContext:
       privileged: true
-    image: quay.io/redhat-developer/gitops-cli@sha256:59c2b11e6ba5836505e7a91b932a6b2c6ceb44781e523c4f066de4015fde3209
+    image: quay.io/redhat-developer/gitops-cli@sha256:13f39986ff7c19a859d47e383530c83cea558f9c70f71473dc63e5a8f3793159
     command: ["/bin/bash"]
     args:
       - -c
@@ -232,7 +232,7 @@ spec:
           mv app-deploy.yaml config
 
           # Generate a kustomize.yaml file under config with list of resources
-          cd config 
+          cd config
           KUSTOMIZATION_YAML="kustomization.yaml"
           touch $KUSTOMIZATION_YAML
           echo "---" >> $KUSTOMIZATION_YAML
@@ -247,7 +247,7 @@ spec:
 
           echo "[INFO] $KUSTOMIZATION_YAML contents - "
           cat $KUSTOMIZATION_YAML
-          
+
           echo " "
           echo "[INFO] List of files under config directory being promoted - "
           ls
@@ -279,7 +279,7 @@ spec:
             exit 1
           fi
 
-          # Determine repo type 
+          # Determine repo type
           if [ -z "$GITOPS_REPOSITORY_TYPE" ]; then
             echo "[WARN] gitops-commit-user-email not configured in the gitops-map config map.  Using a default value of functional-id@kabanero.io."
             GITOPS_REPOSITORY_TYPE="github"
@@ -287,7 +287,7 @@ spec:
 
           gitCommit=$(git rev-parse --short HEAD)
           services promote --from /workspace/$gitsource --to $(GITOPS_REPOSITORY_URL) --service $(inputs.params.git-project) --commit-message "Publish $(inputs.params.git-project) commit $gitCommit" --repository-type $(GITOPS_REPOSITORY_TYPE)
-          
+
           if [ $? != 0 ]; then
             echo "[ERROR] Promote to gitops repo failed.  Please review logs above."
             exit 1
