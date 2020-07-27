@@ -96,14 +96,7 @@ fetch_image_digest() {
 replace_image_url() {
    local image_digest_value=$1
    echo "[INFO] Replacing the utils container image string from 'image : $image_original_string' with 'image : $image_digest_value' in all the pipeline task yaml files";
-   #cd ../../../
-   echo "pwd"
-   pwd
-   echo "ls -ltr"
-   ls -ltr
-   echo "find all the files with yaml"
-   find ./ -type f -name '*.yaml'
-   
+      
    echo "find and sed replace"
    find ./ -type f -name '*.yaml' -exec sed -i 's|'"$image_original_string"'|'"$image_digest_value"'|g' {} +
    if [ $? == 0 ]; then
@@ -133,6 +126,7 @@ fi
 #preparing destination image url based on given inputs
 if [[ (! -z "$IMAGE_REGISTRY") && ( ! -z "$IMAGE_REGISTRY_ORG" ) && ( ! -z "$UTILS_IMAGE_NAME" ) && ( ! -z "$UTILS_IMAGE_TAG" ) ]]; then
    destination_image_url=$IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$UTILS_IMAGE_NAME:$UTILS_IMAGE_TAG   
+   destination_image_url_with_latest_tagname=$IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$UTILS_IMAGE_NAME:latest
 else
    echo "[ERROR] Image url cannot be formed ,one or more of the environment variables IMAGE_REGISTRY,IMAGE_REGISTRY_USERNAME, UTILS_IMAGE_NAME or UTILS_IMAGE_TAG are empty, please provide correct envrionment variables for image registry and image details for building the image and try again."
    echo "[ERROR] IMAGE_REGISTRY=$IMAGE_REGISTRY"
@@ -162,7 +156,7 @@ if [[ ( "$IMAGE_REGISTRY_PUBLISH" == true ) ]]; then
    
       echo "Building the utils container image using USE_BUILDAH=$USE_BUILDAH"
               
-      buildah bud -t $destination_image_url .
+      buildah bud -t $destination_image_url -t $destination_image_url_with_latest_tagname .
       if [ $? == 0 ]; then
          echo "[INFO] The buildah container image $destination_image_url was build successfully"
                 
@@ -170,7 +164,8 @@ if [[ ( "$IMAGE_REGISTRY_PUBLISH" == true ) ]]; then
          echo "[INFO] Pushing the image to $destination_image_url "
          buildah push $destination_image_url docker://$destination_image_url
          if [ $? == 0 ]; then
-            echo "[INFO] The buildah container image $destination_image_url was successfully pushed"     
+            echo "[INFO] The buildah container image $destination_image_url was successfully pushed"
+            buildah push $destination_image_url_with_latest_tagname docker://$destination_image_url_with_latest_tagname     
          else
             echo "[ERROR] The buildah container image push failed for this image $destination_image_url, please check the logs"
             sleep 1
@@ -192,7 +187,7 @@ if [[ ( "$IMAGE_REGISTRY_PUBLISH" == true ) ]]; then
       echo "[INFO] Running docker build for image url : $destination_image_url"
             
       # Running actual docker build command to build the image using docker.      
-      docker build -t $destination_image_url .       
+      docker build -t $destination_image_url -t $destination_image_url_with_latest_tagname .       
       if [ $? == 0 ]; then
          echo "[INFO] Docker image $destination_image_url was build successfully" 
          echo "[INFO] Pushing the image $destination_image_url "
@@ -200,7 +195,8 @@ if [[ ( "$IMAGE_REGISTRY_PUBLISH" == true ) ]]; then
          # Running actual docker push command to push the image  to the registry using docker.
          docker push $destination_image_url
          if [ $? == 0 ]; then
-            echo "[INFO] The docker image was successfully pushed to $destination_image_url"     
+            echo "[INFO] The docker image was successfully pushed to $destination_image_url"
+            docker push $destination_image_url_with_latest_tagname    
          else
             echo "[ERROR] The docker push failed for this image $destination_image_url, please check the logs"
             sleep 1
