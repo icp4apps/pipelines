@@ -16,10 +16,9 @@ assets_dir=$base_dir/ci/assets
 mkdir -p $assets_dir
 
 #imagename in every pipeline task file that will be replaces with correct digest value.
-image_original_string=kabanero/kabanero-utils:latest
-DOCKER_KABANERO_ACCOUNT=kabanero
+image_original_string=icp4apps/pipelines-utils:latest
 #default image name if not provided for the utils container image
-DEFAULT_IMAGE_NAME=kabanero-utils
+DEFAULT_IMAGE_NAME=pipelines-utils
 
 package() {
     local pipelines_dir=$1
@@ -157,7 +156,7 @@ if [[ ( "$IMAGE_REGISTRY_PUBLISH" == true ) ]]; then
       fi       
    fi
    # navigating to the folder where the utils container docker file is present
-   cd ./pipelines/docker/kabanero-utils/              
+   cd ./pipelines/docker/pipelines-utils/              
    
    if [[ ( ! -z "$USE_BUILDAH" ) && ( "$USE_BUILDAH" == true ) ]]; then
    
