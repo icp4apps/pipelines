@@ -9,8 +9,8 @@ dist: bionic
 services:
   - docker
 
-before_install:
-  - sudo apt-get -y install jq
+#before_install:
+#  - sudo apt-get -y install jq
 
 # note before_deploy will run before each deploy provider
 before_deploy:
