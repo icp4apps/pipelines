@@ -48,6 +48,53 @@ echo "Cleaning up tendrils from installation..."
 dnf clean all
 rm -rf /var/cache/yum
 yum clean all
+wait
 
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+echo "Are the dependencies installed?"
+if ! [ -x "$(command -v sudo)" ]; then
+  echo -e "sudo: ${RED}FALSE${NC}"
+else
+	echo -e "sudo: ${GREEN}TRUE${NC}"
+fi
+if ! [ -x "$(command -v kubectl)" ]; then
+  echo -e "kubectl: ${RED}FALSE${NC}"
+else
+	echo -e "kubectl: ${GREEN}TRUE${NC}"
+fi
+if ! [ -x "$(command -v python2)" ]; then
+  echo -e "python2: ${RED}FALSE${NC}"
+else
+	echo -e "python2: ${GREEN}TRUE${NC}"
+fi
+if ! [ -x "$(command -v python3)" ]; then
+  echo -e "python3: ${RED}FALSE${NC}"
+else
+	echo -e "python3: ${GREEN}TRUE${NC}"
+fi
+if ! [ -x "$(command -v git)" ]; then
+  echo -e "git: ${RED}FALSE${NC}"
+else
+	echo -e "git: ${GREEN}TRUE${NC}"
+fi
+if ! [ -x "$(command -v jq)" ]; then
+  echo -e "jq: ${RED}FALSE${NC}"
+else
+	echo -e "jq: ${GREEN}TRUE${NC}"
+fi
+if ! [ -x "$(command -v skopeo)" ]; then
+  echo -e "skopeo: ${RED}FALSE${NC}"
+else
+	echo -e "skopeo: ${GREEN}TRUE${NC}"
+fi
+if ! [ -x "$(command -v gitopscli)" ]; then
+  echo -e "gitopscli: ${RED}FALSE${NC}"
+else
+	echo -e "gitopscli: ${GREEN}TRUE${NC}"
+fi
+echo -e "If any packages are marked ${RED}FALSE${NC} there was an error."
 echo "Installing and setting up dependencies completed. Packages include:"
 echo "sudo, kubectl, python2, python3, git, jq, skopeo, gitopscli"
