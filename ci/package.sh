@@ -221,7 +221,7 @@ fi
 #End
 
 
-package $eventing_pipelines_dir "kabanero-events"
+package $eventing_pipelines_dir "events"
 
 
 echo -e "--- Created pipeline artifacts"
