@@ -45,6 +45,10 @@ wait
 cd ..
 rm -rf packages
 
+echo "Cleaning up tendrils from installation..."
+dnf clean all
+rm -rf /var/cache/yum
+yum clean all
 
 echo "Installing and setting up dependencies completed. Packages include:"
 echo "sudo, kubectl, python2, python3, gcc, git, jq, skopeo, gitopscli"
