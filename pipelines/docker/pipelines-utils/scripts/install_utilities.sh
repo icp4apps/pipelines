@@ -15,7 +15,86 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 
 EOF
 
+yum install -y sudo
 yum install -y kubectl
-yum install -y jq
-yum install -y skopeo
-echo "Installing and setting up kubectl,jq and skopeo tool completed"
+yum install -y python2
+yum install -y python3
+yum install -y git
+wait
+
+cd ..
+git clone https://github.com/baloise/gitopscli.git
+pip3 install gitopscli/
+rm -rf gitopscli
+cd packages
+
+yum localinstall -y glibc-utils.rpm
+wait
+yum localinstall -y oniguruma.rpm
+wait
+yum localinstall -y ostree-devel.rpm
+wait
+yum localinstall -y containers-common.rpm
+wait
+yum localinstall -y jq.rpm
+wait
+yum localinstall -y skopeo.rpm
+wait
+
+cd ..
+rm -rf packages
+
+echo "Cleaning up tendrils from installation..."
+dnf clean all
+rm -rf /var/cache/yum
+yum clean all
+wait
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+echo "Are the dependencies installed?"
+if ! [ -x "$(command -v sudo)" ]; then
+  echo -e "sudo: ${RED}FALSE${NC}"
+else
+	echo -e "sudo: ${GREEN}TRUE${NC}"
+fi
+if ! [ -x "$(command -v kubectl)" ]; then
+  echo -e "kubectl: ${RED}FALSE${NC}"
+else
+	echo -e "kubectl: ${GREEN}TRUE${NC}"
+fi
+if ! [ -x "$(command -v python2)" ]; then
+  echo -e "python2: ${RED}FALSE${NC}"
+else
+	echo -e "python2: ${GREEN}TRUE${NC}"
+fi
+if ! [ -x "$(command -v python3)" ]; then
+  echo -e "python3: ${RED}FALSE${NC}"
+else
+	echo -e "python3: ${GREEN}TRUE${NC}"
+fi
+if ! [ -x "$(command -v git)" ]; then
+  echo -e "git: ${RED}FALSE${NC}"
+else
+	echo -e "git: ${GREEN}TRUE${NC}"
+fi
+if ! [ -x "$(command -v jq)" ]; then
+  echo -e "jq: ${RED}FALSE${NC}"
+else
+	echo -e "jq: ${GREEN}TRUE${NC}"
+fi
+if ! [ -x "$(command -v skopeo)" ]; then
+  echo -e "skopeo: ${RED}FALSE${NC}"
+else
+	echo -e "skopeo: ${GREEN}TRUE${NC}"
+fi
+if ! [ -x "$(command -v gitopscli)" ]; then
+  echo -e "gitopscli: ${RED}FALSE${NC}"
+else
+	echo -e "gitopscli: ${GREEN}TRUE${NC}"
+fi
+echo -e "If any packages are marked ${RED}FALSE${NC} there was an error."
+echo "Installing and setting up dependencies completed. Packages include:"
+echo "sudo, kubectl, python2, python3, git, jq, skopeo, gitopscli"
