@@ -124,8 +124,16 @@ if [[ ( -z "$USE_BUILDAH" ) ]]; then
 fi
 #preparing destination image url based on given inputs
 if [[ (! -z "$IMAGE_REGISTRY") && ( ! -z "$IMAGE_REGISTRY_ORG" ) && ( ! -z "$UTILS_IMAGE_NAME" ) && ( ! -z "$UTILS_IMAGE_TAG" ) ]]; then
-   destination_image_url=$IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$UTILS_IMAGE_NAME:$UTILS_IMAGE_TAG   
+   echo "[INFO] Preparing destination utils image url using below variables as per given by the user"
+   echo "[INFO] IMAGE_REGISTRY=$IMAGE_REGISTRY"
+   echo "[INFO] IMAGE_REGISTRY_ORG=$IMAGE_REGISTRY_ORG"
+   echo "[INFO] UTILS_IMAGE_NAME=$UTILS_IMAGE_NAME"
+   echo "[INFO] UTILS_IMAGE_TAG=$UTILS_IMAGE_TAG"   
+   destination_image_url=$IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$UTILS_IMAGE_NAME:$UTILS_IMAGE_TAG
+   echo "[INFO] Concatenated destination utils image urls are as below"
+   echo "[INFO] destination_image_url=$destination_image_url" 
    destination_image_url_with_latest_tagname=$IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$UTILS_IMAGE_NAME:latest
+   echo "[INFO] destination_image_url_with_latest_tagname=$destination_image_url_with_latest_tagname" 
 else
    echo "[ERROR] Image url cannot be formed ,one or more of the environment variables IMAGE_REGISTRY,IMAGE_REGISTRY_USERNAME, UTILS_IMAGE_NAME or UTILS_IMAGE_TAG are empty, please provide correct envrionment variables for image registry and image details for building the image and try again."
    echo "[ERROR] IMAGE_REGISTRY=$IMAGE_REGISTRY"
@@ -221,7 +229,7 @@ fi
 #End
 
 
-package $eventing_pipelines_dir "kabanero-events"
+package $eventing_pipelines_dir "events"
 
 
 echo -e "--- Created pipeline artifacts"
