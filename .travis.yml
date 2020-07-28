@@ -1,10 +1,13 @@
 language: generic
 
 go:
-  - 1.12.x
+  - 1.13
 
 os: linux
 dist: bionic
+
+services:
+  - docker
 
 # note before_deploy will run before each deploy provider
 before_deploy:
