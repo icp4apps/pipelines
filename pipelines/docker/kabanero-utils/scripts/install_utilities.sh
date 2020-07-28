@@ -15,7 +15,29 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 
 EOF
 
+yum install -y sudo
 yum install -y kubectl
-yum install -y jq
-yum install -y skopeo
-echo "Installing and setting up kubectl,jq and skopeo tool completed"
+yum install -y python2
+yum install -y gcc
+
+cd ..
+cd packages
+
+yum localinstall -y glibc-utils.rpm
+wait
+yum localinstall -y oniguruma.rpm
+wait
+yum localinstall -y ostree-devel.rpm
+wait
+yum localinstall -y containers-common.rpm
+wait
+yum localinstall -y jq.rpm
+wait
+yum localinstall -y skopeo.rpm
+wait
+
+cd ..
+rm -rf packages
+
+
+echo "Installing and setting up kubectl, python2, jq and skopeo tool completed"
