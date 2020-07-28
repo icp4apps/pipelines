@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+set -e
 
 if [ ! -z "$assets_dir" ]
 then
@@ -31,6 +31,8 @@ fi
 # export IMAGE_REGISTRY
 # export IMAGE_REGISTRY_USERNAME
 # export IMAGE_REGISTRY_PASSWORD
+export UTILS_IMAGE_NAME=pipelines-utils
+#export UTILS_IMAGE_TAG=0.9.0
 
 # Organization for images
 # export IMAGE_REGISTRY_ORG=kabanero
