@@ -57,8 +57,7 @@ login_container_registry() {
 }
 fetch_image_digest() {
    local destination_image_url=$1
-   echo "Fetching the image digest value for image $destination_image_url"
-   
+
    if [[ ( ! -z "$USE_BUILDAH" ) && ( "$USE_BUILDAH" == false ) ]]; then
       echo "[INFO] Fetching the image digest value for image $destination_image_url using docker inspect"
       docker pull $destination_image_url
@@ -97,7 +96,7 @@ replace_image_url() {
    local image_digest_value=$1
    echo "[INFO] Replacing the utils container image string from 'image : $image_original_string' with 'image : $image_digest_value' in all the pipeline task yaml files";
       
-   echo "find and sed replace"
+   echo "[INFO] find and sed replace image_original_string=$image_original_string to  image_digest_value=$image_digest_value"
    find ./ -type f -name '*.yaml' -exec sed -i 's|'"$image_original_string"'|'"$image_digest_value"'|g' {} +
    if [ $? == 0 ]; then
       echo "[INFO] Updated utils container image string from original 'image : $image_original_string' with 'image : $image_digest_value' in all the pipeline taks yaml files successfully"
@@ -154,7 +153,7 @@ if [[ ( "$IMAGE_REGISTRY_PUBLISH" == true ) ]]; then
    
    if [[ ( ! -z "$USE_BUILDAH" ) && ( "$USE_BUILDAH" == true ) ]]; then
    
-      echo "Building the utils container image using USE_BUILDAH=$USE_BUILDAH"
+      echo "[INFO] Building the utils container image using USE_BUILDAH=$USE_BUILDAH"
               
       buildah bud -t $destination_image_url -t $destination_image_url_with_latest_tagname .
       if [ $? == 0 ]; then
