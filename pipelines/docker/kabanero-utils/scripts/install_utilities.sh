@@ -19,7 +19,6 @@ yum install -y sudo
 yum install -y kubectl
 yum install -y python2
 yum install -y python3
-yum install -y gcc
 yum install -y git
 wait
 
@@ -51,4 +50,4 @@ rm -rf /var/cache/yum
 yum clean all
 
 echo "Installing and setting up dependencies completed. Packages include:"
-echo "sudo, kubectl, python2, python3, gcc, git, jq, skopeo, gitopscli"
+echo "sudo, kubectl, python2, python3, git, jq, skopeo, gitopscli"
