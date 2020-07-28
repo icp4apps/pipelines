@@ -18,9 +18,15 @@ EOF
 yum install -y sudo
 yum install -y kubectl
 yum install -y python2
+yum install -y python3
 yum install -y gcc
+yum install -y git
+wait
 
 cd ..
+git clone https://github.com/baloise/gitopscli.git
+pip3 install gitopscli/
+rm -rf gitopscli
 cd packages
 
 yum localinstall -y glibc-utils.rpm
@@ -40,4 +46,5 @@ cd ..
 rm -rf packages
 
 
-echo "Installing and setting up kubectl, python2, jq and skopeo tool completed"
+echo "Installing and setting up dependencies completed. Packages include:"
+echo "sudo, kubectl, python2, python3, gcc, git, jq, skopeo, gitopscli"
