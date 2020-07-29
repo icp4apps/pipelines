@@ -820,7 +820,7 @@ EOF
 #####################################
 log $INFO "[$VARIATION]: Test pre-build stackPolicy enforcement"
 
-./mock.sh /workspace/$gitsource/pipelines/docker/kabanero-utils/scripts/enforce_stack_policy.sh pre-build > enforce_stack_policy.out 2>&1
+./mock.sh /workspace/$gitsource/$utility_script_enforce_stack_policy_path pre-build > enforce_stack_policy.out 2>&1
 RC=$?
 cat enforce_stack_policy.out
 if [ "$RC" != "0" ]; then
@@ -840,7 +840,7 @@ rm enforce_stack_policy.out
 # Post-build stackPolicy enforcement #
 ######################################
 log $INFO "[$VARIATION]: Test post-build stackPolicy enforcement"
-./mock.sh /workspace/$gitsource/pipelines/docker/kabanero-utils/scripts/enforce_stack_policy.sh post-build > enforce_stack_policy.out 2>&1
+./mock.sh $utility_script_enforce_stack_policy_pathnforce_stack_policy.sh post-build > enforce_stack_policy.out 2>&1
 RC=$?
 cat enforce_stack_policy.out
 if [ "$RC" != "0" ]; then
@@ -860,7 +860,7 @@ rm enforce_stack_policy.out
 # Deploy stackPolicy enforcement #
 ##################################
 log $INFO "[$VARIATION]: Test pre-deploy stackPolicy enforcement"
-./mock.sh /workspace/$gitsource/pipelines/docker/kabanero-utils/scripts/enforce_deploy_stack_policy.sh > enforce_deploy_stack_policy.out 2>&1
+./mock.sh /workspace/$gitsource/$utility_script_enforce_deploy_stack_policy_path > enforce_deploy_stack_policy.out 2>&1
 RC=$?
 cat enforce_deploy_stack_policy.out
 if [ "$RC" != "0" ]; then
