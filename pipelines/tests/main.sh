@@ -14,6 +14,8 @@ echo
 
 echo "sourcing environment variables script"
 . ./env.sh
+ret_code_of_env_script=$?
+echo "ret_code_of_env_script=$ret_code_of_env_script"
 echo "Sourced the env.sh"
 echo "[ENV] utility_script_enforce_stack_policy_path=$utility_script_enforce_stack_policy_path"
 echo "[ENV] utility_script_enforce_deploy_stack_policy_path=$utility_script_enforce_deploy_stack_policy_path"
@@ -28,7 +30,7 @@ ln -fsvn $buildPath $scriptHome/build
 
 let anyfail=0
 failed=""
-
+echo "before for loop starts"
 regressionTestScripts=$(find . -type f -name '[0-9]*.sh' | sort)
 for testcase in $( echo "$regressionTestScripts") ; do
    if [ -f "$testcase" ] ; then
