@@ -21,10 +21,10 @@ echo "[ENV] utility_script_enforce_stack_policy_path=$utility_script_enforce_sta
 echo "[ENV] utility_script_enforce_deploy_stack_policy_path=$utility_script_enforce_deploy_stack_policy_path"
 # Time to run tests now
 scriptHome=$(dirname $(readlink -f $0))
-echo "[INFO]After setting scriptHome=$scriptHome"
+echo "[INFO] After setting scriptHome=$scriptHome"
 level=$(date "+%Y-%m-%d_%H%M%S")
 buildPath=$scriptHome/build_${level}
-echo "[INFO]buildahpath=$buildpath"
+echo "[INFO] buildahpath=$buildpath"
 # cd $scriptHome/tests
 
 mkdir -p $buildPath
