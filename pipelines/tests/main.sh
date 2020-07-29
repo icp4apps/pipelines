@@ -12,32 +12,21 @@ echo
 echo "... finished installing test prereqs"
 echo
 
-echo "sourcing environment variables script"
+
 . ./env.sh
-ret_code_of_env_script=$?
-echo "ret_code_of_env_script=$ret_code_of_env_script"
-echo "Sourced the env.sh"
-echo "[ENV] utility_script_enforce_stack_policy_path=$utility_script_enforce_stack_policy_path"
-echo "[ENV] utility_script_enforce_deploy_stack_policy_path=$utility_script_enforce_deploy_stack_policy_path"
+echo "[INFO] utility_script_enforce_stack_policy_path=$utility_script_enforce_stack_policy_path"
+echo "[INFO] utility_script_enforce_deploy_stack_policy_path=$utility_script_enforce_deploy_stack_policy_path"
 # Time to run tests now
 scriptHome=$(dirname $(readlink -f $0))
-echo "[INFO] After setting scriptHome=$scriptHome"
 level=$(date "+%Y-%m-%d_%H%M%S")
 buildPath=$scriptHome/build_${level}
-echo "[INFO] buildahpath=$buildahpath"
 # cd $scriptHome/tests
 
 mkdir -p $buildPath
-echo "[INFO] mkdir done"
-ls -la
 ln -fsvn $buildPath $scriptHome/build
-echo "[INFO] command ln -fsvn done"
 
 let anyfail=0
-echo "[INFO] anyfail=0"
 failed=""
-echo "[INFO] failed set to empty string"
-echo "before for loop starts"
 sleep 5
 regressionTestScripts=$(find . -type f -name '[0-9]*.sh' | sort)
 for testcase in $( echo "$regressionTestScripts") ; do
