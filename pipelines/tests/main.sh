@@ -13,7 +13,7 @@ echo "... finished installing test prereqs"
 echo
 
 echo "sourcing environment variables script"
-source env.sh
+. ./env.sh
 # Time to run tests now
 scriptHome=$(dirname $(readlink -f $0))
 level=$(date "+%Y-%m-%d_%H%M%S")
