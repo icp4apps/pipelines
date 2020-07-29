@@ -14,6 +14,9 @@ echo
 
 echo "sourcing environment variables script"
 . ./env.sh
+echo "Sourced the env.sh"
+echo "[ENV] utility_script_enforce_stack_policy_path=$utility_script_enforce_stack_policy_path"
+echo "[ENV] utility_script_enforce_deploy_stack_policy_path=$utility_script_enforce_deploy_stack_policy_path"
 # Time to run tests now
 scriptHome=$(dirname $(readlink -f $0))
 level=$(date "+%Y-%m-%d_%H%M%S")
