@@ -34,7 +34,9 @@ ln -fsvn $buildPath $scriptHome/build
 echo "[INFO] command ln -fsvn done"
 
 let anyfail=0
+echo "[INFO] anyfail=0"
 failed=""
+echo "[INFO] failed set to empty string"
 echo "before for loop starts"
 regressionTestScripts=$(find . -type f -name '[0-9]*.sh' | sort)
 for testcase in $( echo "$regressionTestScripts") ; do
