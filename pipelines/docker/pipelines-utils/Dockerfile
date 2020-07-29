@@ -29,3 +29,9 @@ COPY /packages/*.rpm /packages/
 
 # Executing the script to install the utility tools
 RUN /scripts/install_utilities.sh
+
+# Adding non-root user to registry
+RUN sudo useradd -ms /bin/bash ibm_client
+RUN sudo usermod -aG root ibm_client
+USER ibm_client
+RUN whoami
