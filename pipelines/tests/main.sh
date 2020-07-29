@@ -28,7 +28,10 @@ echo "[INFO] buildahpath=$buildpath"
 # cd $scriptHome/tests
 
 mkdir -p $buildPath
+echo "[INFO] mkdir done"
+ls -la
 ln -fsvn $buildPath $scriptHome/build
+echo "[INFO] command ln -fsvn done"
 
 let anyfail=0
 failed=""
