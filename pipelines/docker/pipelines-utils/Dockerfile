@@ -1,8 +1,16 @@
 FROM registry.access.redhat.com/ubi8/ubi
 
 # Specifying user metadata
-USER root
-LABEL maintainer="Peter Gramenides <Peter.Gramenides@ibm.com>"
+LABEL "name"="ibm-cloudpak4apps-pipelines"
+LABEL "maintainer"="IBM"
+LABEL "architecture"="x86_64"
+LABEL "release"="0.15.0"
+LABEL "vendor"="IBM, Inc."
+LABEL "description"="IBM Cloud Pak® for Applications helps you modernize existing applications, embed additional security, and develop new apps that unleash digital initiatives. It offers cloud-native development solutions that can quickly deliver value, along with flexible licensing that can be tailored to your specific needs."
+LABEL "summary"="Pipelines for IBM Cloud Pak for Applications"
+LABEL "io.k8s.display-name"="ibm-cloudpak4apps-pipelines"
+LABEL "url"="https://www.ibm.com/cloud/cloud-pak-for-applications"
+LABEL "com.redhat.license_terms"="com.redhat.license_terms"
 
 # Updating the images for package installer
 RUN yum update --disablerepo=* --enablerepo=ubi-8-appstream --enablerepo=ubi-8-baseos -y && rm -rf /var/cache/yum
