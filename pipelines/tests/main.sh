@@ -24,7 +24,7 @@ scriptHome=$(dirname $(readlink -f $0))
 echo "[INFO] After setting scriptHome=$scriptHome"
 level=$(date "+%Y-%m-%d_%H%M%S")
 buildPath=$scriptHome/build_${level}
-echo "[INFO] buildahpath=$buildpath"
+echo "[INFO] buildahpath=$buildahpath"
 # cd $scriptHome/tests
 
 mkdir -p $buildPath
