@@ -38,6 +38,7 @@ echo "[INFO] anyfail=0"
 failed=""
 echo "[INFO] failed set to empty string"
 echo "before for loop starts"
+sleep 5
 regressionTestScripts=$(find . -type f -name '[0-9]*.sh' | sort)
 for testcase in $( echo "$regressionTestScripts") ; do
    if [ -f "$testcase" ] ; then
