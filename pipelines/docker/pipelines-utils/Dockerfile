@@ -1,6 +1,7 @@
 FROM registry.access.redhat.com/ubi8/ubi
 
 # Specifying user metadata
+USER root
 LABEL "name"="ibm-cloudpak4apps-pipelines"
 LABEL "maintainer"="IBM"
 LABEL "architecture"="x86_64"
@@ -29,9 +30,3 @@ COPY /packages/*.rpm /packages/
 
 # Executing the script to install the utility tools
 RUN /scripts/install_utilities.sh
-
-# Adding non-root user to registry
-RUN sudo useradd -ms /bin/bash ibm_client
-RUN sudo usermod -aG root ibm_client
-USER ibm_client
-RUN whoami
