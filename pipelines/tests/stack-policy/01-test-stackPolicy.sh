@@ -840,7 +840,7 @@ rm enforce_stack_policy.out
 # Post-build stackPolicy enforcement #
 ######################################
 log $INFO "[$VARIATION]: Test post-build stackPolicy enforcement"
-./mock.sh $utility_script_enforce_stack_policy_pathnforce_stack_policy.sh post-build > enforce_stack_policy.out 2>&1
+./mock.sh /workspace/$gitsource/$utility_script_enforce_stack_policy_path  post-build > enforce_stack_policy.out 2>&1
 RC=$?
 cat enforce_stack_policy.out
 if [ "$RC" != "0" ]; then
