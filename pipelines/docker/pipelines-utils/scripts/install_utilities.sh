@@ -1,3 +1,4 @@
+yum install -y sudo
 echo "Installing and setting up kubectl starting...."
 curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
 chmod +x ./kubectl
@@ -15,7 +16,6 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 
 EOF
 
-yum install -y sudo
 yum install -y kubectl
 yum install -y python2
 yum install -y python3
@@ -32,13 +32,39 @@ yum localinstall -y glibc-utils.rpm
 wait
 yum localinstall -y oniguruma.rpm
 wait
+yum localinstall -y slirp4netns.rpm
+wait
 yum localinstall -y ostree-devel.rpm
 wait
 yum localinstall -y containers-common.rpm
 wait
+yum localinstall -y container-selinux.rpm
+wait
+yum localinstall -y device-mapper-libs.rpm
+wait
+yum localinstall -y glibc-utils.rpm
+wait
+yum localinstall -y libassuan.rpm
+wait
+yum localinstall -y libgpg-error.rpm
+wait
+yum localinstall -y libnet.rpm
+wait
+yum localinstall -y protobuf.rpm
+wait
+yum localinstall -y protobufc.rpm
+wait
+yum localinstall -y criu.rpm
+wait
+yum localinstall -y runc.rpm
+wait
 yum localinstall -y jq.rpm
 wait
 yum localinstall -y skopeo.rpm
+wait
+yum localinstall -y appsody.rpm
+wait
+yum localinstall -y buildah.rpm
 wait
 
 cd ..
@@ -59,6 +85,16 @@ if ! [ -x "$(command -v sudo)" ]; then
   echo -e "sudo: ${RED}FALSE${NC}"
 else
 	echo -e "sudo: ${GREEN}TRUE${NC}"
+fi
+if ! [ -x "$(command -v appsody)" ]; then
+  echo -e "appsody: ${RED}FALSE${NC}"
+else
+	echo -e "appsody: ${GREEN}TRUE${NC}"
+fi
+if ! [ -x "$(command -v buildah)" ]; then
+  echo -e "buildah: ${RED}FALSE${NC}"
+else
+	echo -e "buildah: ${GREEN}TRUE${NC}"
 fi
 if ! [ -x "$(command -v kubectl)" ]; then
   echo -e "kubectl: ${RED}FALSE${NC}"
@@ -97,4 +133,4 @@ else
 fi
 echo -e "If any packages are marked ${RED}FALSE${NC} there was an error."
 echo "Installing and setting up dependencies completed. Packages include:"
-echo "sudo, kubectl, python2, python3, git, jq, skopeo, gitopscli"
+echo "sudo, appsody, buildah, kubectl, python2, python3, git, jq, skopeo, gitopscli"
