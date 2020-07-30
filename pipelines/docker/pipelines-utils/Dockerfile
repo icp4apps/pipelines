@@ -1,13 +1,12 @@
 FROM registry.access.redhat.com/ubi8/ubi
 
 # Specifying user metadata
-USER root
 LABEL "name"="ibm-cloudpak4apps-pipelines"
 LABEL "maintainer"="IBM"
 LABEL "architecture"="x86_64"
 LABEL "release"="0.15.0"
 LABEL "version"="alpha.5"
-LABEL "vendor"="IBM, Inc."
+LABEL "vendor"="IBM Corporation"
 LABEL "description"="IBM Cloud Pak® for Applications helps you modernize existing applications, embed additional security, and develop new apps that unleash digital initiatives. It offers cloud-native development solutions that can quickly deliver value, along with flexible licensing that can be tailored to your specific needs."
 LABEL "summary"="Pipelines for IBM Cloud Pak for Applications"
 LABEL "io.k8s.display-name"="ibm-cloudpak4apps-pipelines"
