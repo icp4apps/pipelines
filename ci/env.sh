@@ -26,6 +26,7 @@ fi
 
 # Publish images to image registry
 # export IMAGE_REGISTRY_PUBLISH=false
+# export UTILS_IMAGE_REGISTRY_PUBLISH=false
 
 # Credentials for publishing images:
 # export IMAGE_REGISTRY
@@ -156,6 +157,11 @@ fi
 if [ -z "$IMAGE_REGISTRY_PUBLISH" ]
 then
     export IMAGE_REGISTRY_PUBLISH=false
+fi
+
+if [ -z "$UTILS_IMAGE_REGISTRY_PUBLISH" ]
+then
+    export UTILS_IMAGE_REGISTRY_PUBLISH=false
 fi
 
 image_build() {

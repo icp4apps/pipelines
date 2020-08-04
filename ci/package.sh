@@ -114,7 +114,7 @@ if [ -z "$UTILS_IMAGE_NAME" ]; then
 fi
 #setting up the utils image tagname as TRAVIS_TAG in case it is not empty, which is during Travis automation step.
 # In other cases UTILS_IMAGE_TAG will be exported from env.sh file.
-if [[ ( "$IMAGE_REGISTRY_PUBLISH" == true ) && (! -z "$TRAVIS_TAG") ]]; then
+if [[ ( "$UTILS_IMAGE_REGISTRY_PUBLISH" == true ) && (! -z "$TRAVIS_TAG") ]]; then
    echo "Travis_tag variable is not empty TRAVIS_TAG=$TRAVIS_TAG"
    UTILS_IMAGE_TAG=$TRAVIS_TAG
 fi
@@ -143,7 +143,7 @@ else
    sleep 1
    exit 1
 fi
-if [[ ( "$IMAGE_REGISTRY_PUBLISH" == true ) ]]; then
+if [[ ( "$UTILS_IMAGE_REGISTRY_PUBLISH" == true ) ]]; then
    echo "[INFO] Publishing a new utils container image" 
    
    #Login to the registry if the username and password are present
@@ -233,4 +233,23 @@ package $eventing_pipelines_dir "events"
 
 
 echo -e "--- Created pipeline artifacts"
-
+# expose an extension point for running after main 'package' processing
+exec_hooks $script_dir/ext/post_package.d
+echo -e "--- Building nginx container"
+nginx_arg=
+echo "BUILDING: $IMAGE_REGISTRY_ORG/$INDEX_IMAGE:${INDEX_VERSION}" > ${build_dir}/image.$INDEX_IMAGE.${INDEX_VERSION}.log
+if image_build ${build_dir}/image.$INDEX_IMAGE.${INDEX_VERSION}.log \
+    $nginx_arg \
+    -t $IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$INDEX_IMAGE \
+    -t $IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$INDEX_IMAGE:${INDEX_VERSION} \
+    -f $script_dir/nginx/Dockerfile $script_dir
+then
+    echo "$IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$INDEX_IMAGE" >> $build_dir/image_list
+    echo "$IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$INDEX_IMAGE:${INDEX_VERSION}" >> $build_dir/image_list
+    echo "created $IMAGE_REGISTRY_ORG/$INDEX_IMAGE:${INDEX_VERSION}"
+    trace "${build_dir}/image.$INDEX_IMAGE.${INDEX_VERSION}.log"
+else
+    stderr "${build_dir}/image.$INDEX_IMAGE.${INDEX_VERSION}.log"
+    stderr "failed building $IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$INDEX_IMAGE:${INDEX_VERSION}"
+    exit 1
+fi
