@@ -1,0 +1,31 @@
+ apiVersion: tekton.dev/v1alpha1
+ kind: PipelineRun
+ metadata:
+   name: pipelines-build-pipeline-run
+   namespace: kabanero
+ spec:
+   pipelineRef:
+     name: pipelines-build-pipeline
+   resources:
+   - name: git-source
+     resourceRef:
+       name: pipelines-build-git-resource
+   params:
+     - name: deploymentSuffix
+       value: latest
+     - name: useBuildah
+       value: "true"
+     - name: utilsImageRegistryPublish
+       value: "true"
+     - name: registry
+       value: "docker.io"
+     - name: registryNamespace
+       value: "icp4apps"
+     - name: imageRegistryUsername
+       value: "<container_registry_username>"
+     - name: imageRegistryPassword
+       value: "<container_registry_password>"
+     - name: utilsImageTag
+       value: "<utils_image_tag_name>"
+   serviceAccountName: pipelines-index
+   timeout: 60m
