@@ -7,19 +7,19 @@ spec:
     resources:
       - name: git-source
         type: git
-    params:
+    params:        
       - name: registry
         type: string
         description: Container registry
-        default: image-registry.openshift-image-registry.svc:5000
+        default: "docker.io" 
       - name: registryNamespace
         type: string
         description: Container registry namespace
-        default: kabanero
+        default: "icp4apps"
       - name: hostname
         type: string
         description: Hostname of the application hosting pipeline assets
-        default: pipelines-index
+        default: "pipelines-index"
       - name: clusterSubdomain
         type: string
         default: ""
@@ -27,17 +27,48 @@ spec:
       - name: indexImage
         type: string
         description: Name of the pipelines index image
-        default: pipelines-index
+        default: "pipelines-index"
       - name: deploymentSuffix
         type: string
         description: Deployment name suffix. Specify 'git' to use Git revision as the suffix.
         default: "latest"
-
+      - name: utilsImageName
+        type: string
+        description: Name of the piplines utils image
+        default: "pipelines-utils"
+      - name: utilsImageTag
+        type: string
+        description: Tag name of the piplines utils image
+        default: "latest"
+      - name: indexImageRegistryPublish
+        type: string
+        description: pipeline-index image publish option
+        default: "true"
+      - name: utilsImageRegistryPublish
+        type: string
+        description: pipelines-utils image publish option
+        default: "true"
+      - name: imageRegistryUsername
+        type: string
+        description: Username of the container registry
+        default: ""
+      - name: imageRegistryPassword
+        type: string
+        description: Password of the container registry
+        default: ""
+      - name: useBuildah
+        type: string
+        description: Container build option for building the container image
+        default: "true"
+      - name: buildahFormat
+        type: string
+        description: Buildah format used in building buildah container image
+        default: "docker"
   steps:
     - name: build-pipelines
       securityContext:
         privileged: true
-      image: quay.io/buildah/stable:v1.9.0
+      image: icp4apps/pipelines-utils:latest
       command: ["/bin/bash"]
       args:
         - -cex
@@ -46,14 +77,20 @@ spec:
           yum install -y findutils
     
           # do build and release
-          export USE_BUILDAH="true"
-          export BUILDAH_FORMAT="docker"
+          export USE_BUILDAH="$(inputs.params.useBuildah)"
+          export BUILDAH_FORMAT="$(inputs.params.buildahFormat)"
           export IMAGE_REGISTRY="$(inputs.params.registry)"
           export IMAGE_REGISTRY_ORG="$(inputs.params.registryNamespace)"
           export INDEX_IMAGE="$(inputs.params.indexImage)"
           export INDEX_VERSION=$(echo '$(inputs.resources.git-source.revision)' | tr '[:upper:]' '[:lower:]' | tr -cd '[:alnum:].-')
-          export IMAGE_REGISTRY_PUBLISH="true"
-          cd /workspace/git-source/
+          export IMAGE_REGISTRY_PUBLISH="$(inputs.params.indexImageRegistryPublish)"
+          export UTILS_IMAGE_REGISTRY_PUBLISH="$(inputs.params.utilsImageRegistryPublish)"
+
+          export IMAGE_REGISTRY_USERNAME="$(inputs.params.imageRegistryUsername)"
+          export IMAGE_REGISTRY_PASSWORD="$(inputs.params.imageRegistryPassword)"
+
+          export UTILS_IMAGE_NAME="$(inputs.params.utilsImageName)"
+          export UTILS_IMAGE_TAG="$(inputs.params.utilsImageTag)"
           ./ci/package.sh
           ./ci/release.sh
       env:
@@ -64,7 +101,7 @@ spec:
           mountPath: /var/lib/containers
 
     - name: deploy-pipelines-index
-      image: kabanero/kabanero-utils:0.3.0
+      image: icp4apps/pipelines-utils:latest
       command: ['/bin/bash']
       args:
         - -cex

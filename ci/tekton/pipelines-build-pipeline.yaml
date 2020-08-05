@@ -10,7 +10,27 @@ spec:
     - name: deploymentSuffix
       type: string
       description: Deployment name suffix. Specify 'git' to use Git revision as the suffix.
-      default: "latest"
+    - name: useBuildah
+      type: string
+      description: Container build option for building the container image
+    - name: utilsImageRegistryPublish
+      type: string
+      description: pipelines-utils image publish option
+    - name: registry
+      type: string
+      description: Container registry
+    - name: registryNamespace
+      type: string
+      description: Container registry namespace
+    - name: imageRegistryUsername
+      type: string
+      description: Username of the container registry
+    - name: imageRegistryPassword
+      type: string
+      description: Password of the container registry
+    - name: utilsImageTag
+      type: string
+      description: Tag name of the piplines utils image
   tasks:
     - name: build-task
       taskRef:
@@ -22,3 +42,17 @@ spec:
       params:
         - name: deploymentSuffix
           value: "$(params.deploymentSuffix)"
+        - name: useBuildah
+          value: "$(params.useBuildah)"
+        - name: utilsImageRegistryPublish
+          value: "$(params.utilsImageRegistryPublish)"
+        - name: registry
+          value: "$(params.registry)"
+        - name: registryNamespace
+          value: "$(params.registryNamespace)"
+        - name: imageRegistryUsername
+          value: "$(params.imageRegistryUsername)"
+        - name: imageRegistryPassword
+          value: "$(params.imageRegistryPassword)"
+        - name: utilsImageTag
+          value: "$(params.utilsImageTag)"
