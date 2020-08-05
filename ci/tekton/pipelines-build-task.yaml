@@ -91,6 +91,7 @@ spec:
 
           export UTILS_IMAGE_NAME="$(inputs.params.utilsImageName)"
           export UTILS_IMAGE_TAG="$(inputs.params.utilsImageTag)"
+          cd /workspace/git-source/
           ./ci/package.sh
           ./ci/release.sh
       env:
