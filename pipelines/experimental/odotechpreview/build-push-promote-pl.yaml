@@ -1,0 +1,92 @@
+#Kabanero! on activate substitute Digest for text '@Digest@'
+# This pipeline will build the source repo, optionally sign the image built, push the image to the image registry,
+# scan the built image, and optionally promote the deployment data to a gitops repo.  
+# The pipeline will also do a local deployment if webhooks-tekton-local-deploy is set to true.
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build-push-promote-pl-@Digest@
+spec:
+  params:
+    - name: repo-url
+      type: string
+    - name: image
+      type: string
+  workspaces:
+    - name: shared-workspace
+  tasks:
+    - name: fetch-repository
+      taskRef:
+        name: git-clone-@Digest@
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: url
+          value: $(params.repo-url)
+        - name: subdirectory
+          value: repo
+    - name: fetch-dockerfile
+      taskRef:
+        name: fetch-dockerfile-@Digest@
+      runAfter:
+        - fetch-repository
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: build-and-push
+      taskRef:
+        name: buildah-@Digest@
+      runAfter:
+        - fetch-dockerfile
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+      params:
+        - name: IMAGE
+          value: '$(params.image):$(tasks.fetch-repository.results.commit)'
+        - name: CONTEXT
+          value: repo/
+### TODO convert to workspace
+#  - name: image-scan-task
+#    taskRef:
+#      name: image-scan-task-@Digest@
+#    runAfter: [build-and-push]
+#    params:
+#      - name: docker-imagename
+#        value: "$(params.docker-imagename)"
+#      - name: docker-imagetag
+#        value: "$(params.docker-imagetag)"
+#    resources:
+#      inputs:
+#      - name: git-source
+#        resource: git-source
+#      - name: docker-image
+#        resource: docker-image
+###
+### TODO insert promote here ?
+###
+    - name: fetch-and-fill-manifest
+      conditions:
+      - conditionRef: deployment-condition-@Digest@
+        params:
+        - name: webhooks-tekton-local-deploy
+          value: $(params.webhooks-tekton-local-deploy)
+      taskRef:
+        name: fetch-and-fill-manifest-@Digest@
+      runAfter:
+        - build-and-push #image-scan-task
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+      params:
+        - name: newImage
+          value: '$(params.image):$(tasks.fetch-repository.results.commit)'
+    - name: deploy-app
+      taskRef:
+        name: deploy-@Digest@
+      runAfter:
+        - fetch-and-fill-manifest
+      workspaces:
+        - name: source
+          workspace: shared-workspace
