@@ -33,7 +33,7 @@ fi
 # export IMAGE_REGISTRY_USERNAME
 # export IMAGE_REGISTRY_PASSWORD
 export UTILS_IMAGE_NAME=pipelines-utils
-export UTILS_IMAGE_TAG=0.15.0-alpha.4
+#export UTILS_IMAGE_TAG=0.15.0-alpha.4
 
 # Organization for images
 # export IMAGE_REGISTRY_ORG=icp4apps
