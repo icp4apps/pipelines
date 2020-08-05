@@ -33,10 +33,10 @@ fi
 # export IMAGE_REGISTRY_USERNAME
 # export IMAGE_REGISTRY_PASSWORD
 export UTILS_IMAGE_NAME=pipelines-utils
-#export UTILS_IMAGE_TAG=0.9.0
+export UTILS_IMAGE_TAG=0.15.0-alpha.4
 
 # Organization for images
-# export IMAGE_REGISTRY_ORG=kabanero
+# export IMAGE_REGISTRY_ORG=icp4apps
 
 # Name of pipelines-index image (ci/package.sh)
 # export INDEX_IMAGE=pipelines-index
@@ -130,7 +130,7 @@ exec_hooks $script_dir/ext/pre_env.d
 # image registry org for publishing stack
 if [ -z "$IMAGE_REGISTRY_ORG" ]
 then
-    export IMAGE_REGISTRY_ORG=kabanero
+    export IMAGE_REGISTRY_ORG=icp4apps
 fi
 
 # image registry for publishing stack
@@ -142,6 +142,16 @@ fi
 if [ -z "$INDEX_IMAGE" ]
 then
     export INDEX_IMAGE=pipelines-index
+fi
+
+if [ -z "$UTILS_IMAGE_NAME" ]
+then
+    export UTILS_IMAGE_NAME=pipelines-utils
+fi
+
+if [ -z "$UTILS_IMAGE_TAG" ]
+then
+    export UTILS_IMAGE_TAG=latest
 fi
 
 if [ -z "$INDEX_VERSION" ]
