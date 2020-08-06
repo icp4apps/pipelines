@@ -222,7 +222,7 @@ if [[ ( "$UTILS_IMAGE_REGISTRY_PUBLISH" == true ) ]]; then
       fetch_image_digest $destination_image_url
    fi  
 else
-   echo "[INFO] We are not publishing new utils container image since IMAGE_REGISTRY_PUBLISH is not set to true "
+   echo "[INFO] We are not publishing new utils container image since UTILS_IMAGE_REGISTRY_PUBLISH is not set to true "
    #calling method to fetch image digest value
    fetch_image_digest $destination_image_url
 fi

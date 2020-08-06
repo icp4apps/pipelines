@@ -82,7 +82,7 @@ spec:
           export IMAGE_REGISTRY_ORG="$(inputs.params.registryNamespace)"
           export INDEX_IMAGE="$(inputs.params.indexImage)"
           export INDEX_VERSION=$(echo '$(inputs.resources.git-source.revision)' | tr '[:upper:]' '[:lower:]' | tr -cd '[:alnum:].-')
-          export IMAGE_REGISTRY_PUBLISH="$(inputs.params.indexImageRegistryPublish)"
+          export INDEX_IMAGE_REGISTRY_PUBLISH="$(inputs.params.indexImageRegistryPublish)"
           export UTILS_IMAGE_REGISTRY_PUBLISH="$(inputs.params.utilsImageRegistryPublish)"
 
           export IMAGE_REGISTRY_USERNAME="$(inputs.params.imageRegistryUsername)"
