@@ -59,7 +59,7 @@ then
         echo "$pipelines_dir not found"
         exit 1
     fi;
-    package $pipelines_dir "pipelines"
+    package $pipelines_dir `basename $pipelines_dir`
     exit 0
 fi;
 
