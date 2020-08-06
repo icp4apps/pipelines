@@ -1,0 +1,18 @@
+#Kabanero! on activate substitute Digest for text '@Digest@'
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-@Digest@
+spec:
+  workspaces:
+    - name: source
+      mountPath: /source
+  params:
+    - name: manifestSubPath
+      default: manifest.yaml
+  steps:
+    - name: deploy
+      image: lachlanevenson/k8s-kubectl
+      script: |
+        cat "$(workspaces.source.path)/$(params.manifestSubPath)"
+        kubectl apply -f "$(workspaces.source.path)/$(params.manifestSubPath)"
