@@ -50,6 +50,19 @@ package() {
     echo ${tarballSHA}>> $assets_dir/${prefix}-pipelines-tar-gz-sha256
 }
 
+OPTIONAL_ARGS=1
+if [ $# -eq $OPTIONAL_ARGS ]
+then
+    pipelines_dir=$base_dir/pipelines/$1
+    if [ ! -d $pipelines_dir ]
+    then
+        echo "$pipelines_dir not found"
+        exit 1
+    fi;
+    package $pipelines_dir "pipelines"
+    exit 0
+fi;
+
 login_container_registry() {
     local container_registry_login_option=$1
     echo "[INFO] inside login_container_registry method Logging in the container registry using $container_registry_login_option "
