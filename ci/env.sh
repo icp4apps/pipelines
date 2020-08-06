@@ -35,7 +35,7 @@ fi
 export UTILS_IMAGE_NAME=pipelines-utils
 #export UTILS_IMAGE_TAG=0.15.0-alpha.4
 
-# Organization for images
+# Registry Organization for images. In case of dockerhub this would be dockerhub-id
 # export IMAGE_REGISTRY_ORG=icp4apps
 
 # Name of pipelines-index image (ci/package.sh)
@@ -127,16 +127,10 @@ logged() {
 #expose an extension point for running before main 'env' processing
 exec_hooks $script_dir/ext/pre_env.d
 
-# image registry org for publishing stack
-if [ -z "$IMAGE_REGISTRY_ORG" ]
-then
-    export IMAGE_REGISTRY_ORG=icp4apps
-fi
-
 # image registry for publishing stack
 if [ -z "$IMAGE_REGISTRY" ]
 then
-    export IMAGE_REGISTRY=docker.io
+    export IMAGE_REGISTRY=image-registry.openshift-image-registry.svc:5000
 fi
 
 if [ -z "$INDEX_IMAGE" ]

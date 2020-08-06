@@ -18,9 +18,11 @@
      - name: utilsImageRegistryPublish
        value: "true"
      - name: registry
-       value: "docker.io"
+       #description: This is the contianer registry where images will be pushed by the pipeline.
+       value: "<container_registry_url>"
      - name: registryNamespace
-       value: "icp4apps"
+       #description: This is the container registry namespace, in case of docker.io as registry this will be dockerhub-id
+       value: "<container_registry_namespace>"
      - name: imageRegistryUsername
        value: "<container_registry_username>"
      - name: imageRegistryPassword

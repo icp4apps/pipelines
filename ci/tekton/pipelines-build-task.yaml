@@ -10,12 +10,11 @@ spec:
     params:        
       - name: registry
         type: string
-        description: Container registry
-        default: "docker.io" 
+        description: Container registry where images will be pushed by the task.
+        default: "image-registry.openshift-image-registry.svc:5000" 
       - name: registryNamespace
         type: string
-        description: Container registry namespace
-        default: "icp4apps"
+        description: This is the container registry namespace, in case of docker.io as registry this will be dockerhub-id
       - name: hostname
         type: string
         description: Hostname of the application hosting pipeline assets

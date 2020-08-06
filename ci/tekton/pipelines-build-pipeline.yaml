@@ -15,13 +15,13 @@ spec:
       description: Container build option for building the container image
     - name: utilsImageRegistryPublish
       type: string
-      description: pipelines-utils image publish option
+      description: pipelines-utils image publish option. It can be true or false.
     - name: registry
       type: string
-      description: Container registry
+      description: This is the contianer registry where images will be pushed by the pipeline.
     - name: registryNamespace
       type: string
-      description: Container registry namespace
+      description: This is the container registry namespace, in case of docker.io as registry this will be dockerhub-id
     - name: imageRegistryUsername
       type: string
       description: Username of the container registry
