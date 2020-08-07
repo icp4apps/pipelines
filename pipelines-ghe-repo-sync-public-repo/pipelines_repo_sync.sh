@@ -1,5 +1,6 @@
 #!/bin/bash
-
+#This script will clone the [GHE pipelines repository](https://github.ibm.com/IBMCloudPak4Apps/pipelines) code base 
+#and sync it to the [public pipelines repository](https://github.com/icp4apps/pipelines) using GIT commands.
 set -e
 
 
