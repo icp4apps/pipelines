@@ -1,0 +1,40 @@
+#Kabanero! on activate substitute Digest for text '@Digest@'
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: fetch-and-fill-manifest-@Digest@
+spec:
+  workspaces:
+    - name: source
+      mountPath: /source
+  params:
+    - name: devfilePath
+      default: repo/devfile.yaml
+    - name: manifestSubPath
+      default: manifest.yaml
+    - name: newImage
+      type: string
+  steps:
+    - name: fetch-manifest
+      image: mikefarah/yq
+      script: |
+        MANIFEST_PATH="$(workspaces.source.path)/$(params.manifestSubPath)"
+        DEVFILE="$(workspaces.source.path)/$(params.devfilePath)"
+
+        LOOKUP='metadata[alpha.deployment-manifest]'
+        MANIFEST_URL=$(yq r $DEVFILE $LOOKUP)
+
+        # Fetch deployment manifest
+        wget -O $MANIFEST_PATH $MANIFEST_URL
+
+        # Replace image in deployment manifest
+        yq w -i $MANIFEST_PATH 'spec.applicationImage' "$(params.newImage)"
+
+        # Replace project name based on devfile.yaml
+        PROJECT_NAME=$(yq r $DEVFILE 'projects[0].name') 
+        yq w -i $MANIFEST_PATH 'metadata.name' $PROJECT_NAME
+
+        # Replace port used by application, based on devfile.yaml
+        LOOKUP='components[0].container.endpoints[0].targetPort'
+        PORT=$(yq r $DEVFILE $LOOKUP)
+        yq w -i $MANIFEST_PATH 'spec.service.port' $PORT
