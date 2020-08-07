@@ -38,7 +38,7 @@ spec:
     - name: mount-image          
       securityContext:
         privileged: true
-      image: kabanero/kabanero-utils@sha256:d2534cb30f618975bd5a9554920050b36d1bde5a882e8bacf100773847ec9ae8
+      image: icp4apps/pipelines-utils:latest
 # Temporarily make copy of mounted image since the mounted image will be unmounted when the container for this task ends.
 # TODO: Determine another way to persist the mounted container image across containers
       command: ['/bin/bash']
@@ -92,7 +92,7 @@ spec:
     - name: scan-image
       securityContext:
         privileged: true
-      image: kabanero/scanner@sha256:82b979de485fc5990d41b8b4acc2aeee2211bd26b0f03374f5657773ae4148f9
+      image: icp4apps/scanner@sha256:82b979de485fc5990d41b8b4acc2aeee2211bd26b0f03374f5657773ae4148f9
       command: ['/bin/bash']
       args:
         - -c
