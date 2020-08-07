@@ -7,7 +7,7 @@ PIPELINES_SYNC_WORKSPACE=pipelines_sync_workspace
 
 PIPELINES_GHE_REPO=https://github.ibm.com/IBMCloudPak4Apps/pipelines.git
 PIPELINES_PUBLIC_REPO=https://github.com/icp4apps/pipelines.git
-SYNC_BRANCH_NAME=merge_ghe_to_public_repo
+SYNC_BRANCH_NAME=merge_ghe_code_to_public_repo_code
 MERGE_MESSAGE="merge ghe files to public pipelines repo"
 
 cleanup_workingspace_dir() {
