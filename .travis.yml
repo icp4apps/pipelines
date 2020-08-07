@@ -1,10 +1,13 @@
 language: generic
 
 go:
-  - 1.12.x
+  - 1.13
 
 os: linux
 dist: bionic
+
+services:
+  - docker
 
 # note before_deploy will run before each deploy provider
 before_deploy:
@@ -18,4 +21,4 @@ deploy:
   file_glob: true
   on:
     tags: true
-    repo: $GITHUB_REPO/kabanero-pipelines
+    repo: $GITHUB_ORG/$GITHUB_REPO
