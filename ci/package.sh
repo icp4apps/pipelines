@@ -106,7 +106,6 @@ replace_image_url() {
       exit 1
    fi
 }
-#Start
    
 #setting the Utils image name as Default image name in case it is empty or not provided from env.sh
 if [ -z "$UTILS_IMAGE_NAME" ]; then
@@ -226,7 +225,6 @@ else
    #calling method to fetch image digest value
    fetch_image_digest $destination_image_url
 fi
-#End
 
 
 package $eventing_pipelines_dir "events"

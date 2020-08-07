@@ -27,7 +27,7 @@ ln -fsvn $buildPath $scriptHome/build
 
 let anyfail=0
 failed=""
-sleep 5
+
 regressionTestScripts=$(find . -type f -name '[0-9]*.sh' | sort)
 for testcase in $( echo "$regressionTestScripts") ; do
    if [ -f "$testcase" ] ; then

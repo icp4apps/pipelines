@@ -32,6 +32,8 @@ fi
 # export IMAGE_REGISTRY
 # export IMAGE_REGISTRY_USERNAME
 # export IMAGE_REGISTRY_PASSWORD
+
+# Utils container image details
 export UTILS_IMAGE_NAME=pipelines-utils
 #export UTILS_IMAGE_TAG=0.15.0-alpha.4
 
