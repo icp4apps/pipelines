@@ -1,31 +1,38 @@
-# kabanero-utils
+# pipelines-utils
 
-This is an image based on base image 'appsody/appsody-buildah:0.6.0-buildah1.9.0' with utilities and tools installed that are used by Kabanero pipelines.
+This is an image based on base image 'registry.access.redhat.com/ubi8/ubi' with utilities and tools installed that are used by Kabanero pipelines.
 
 ##Utilities installed
 - kubectl
 - jq
+- jq
 - skopeo
+- skopeo
+- sudo
+- appsody
+- buildah
+- python2
+- python3
+- git
+- gitopscli
 
 
 ##Scripts included in the image
 
- - [insecure_registry_setup.sh](abc)     
+ - [image_registry_access_setup.sh](https://github.com/icp4apps/pipelines/blob/master/pipelines/docker/pipelines-utils/scripts/image_registry_access_setup.sh)       
  
  
- - [ca_certs_setup.sh](abc)
+ - [enforce_stack_policy.sh](https://github.com/icp4apps/pipelines/blob/master/pipelines/docker/pipelines-utils/scripts/enforce_stack_policy.sh)
  
  
- - [enforce_stack_policy.sh](abc)
+ - [enforce_deploy_stack_policy.sh](https://github.com/icp4apps/pipelines/blob/master/pipelines/docker/pipelines-utils/scripts/enforce_deploy_stack_policy.sh)
  
  
- - [enforce_deploy_stack_policy.sh](abc)
+ - [imageurl_imagename_lowercase.sh](https://github.com/icp4apps/pipelines/blob/master/pipelines/docker/pipelines-utils/scripts/imageurl_imagename_lowercase.sh)
  
  
- - [imageurl_imagename_lowercase.sh](abc)
+ - [stack_registry_url_setup.sh](https://github.com/icp4apps/pipelines/blob/master/pipelines/docker/pipelines-utils/scripts/stack_registry_url_setup.sh)
  
  
- - [stack_registry_url_setup.sh](abc)
+ - [install_utilities.sh](https://github.com/icp4apps/pipelines/blob/master/pipelines/docker/pipelines-utils/scripts/install_utilities.sh)
  
- 
- - [install_utilities.sh](abc)
