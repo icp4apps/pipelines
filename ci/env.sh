@@ -25,17 +25,20 @@ fi
 # ENVIRONMENT VARIABLES for controlling behavior of build, package, and release
 
 # Publish images to image registry
-# export IMAGE_REGISTRY_PUBLISH=false
+# export INDEX_IMAGE_REGISTRY_PUBLISH=false
+# export UTILS_IMAGE_REGISTRY_PUBLISH=false
 
 # Credentials for publishing images:
 # export IMAGE_REGISTRY
 # export IMAGE_REGISTRY_USERNAME
 # export IMAGE_REGISTRY_PASSWORD
-export UTILS_IMAGE_NAME=pipelines-utils
-#export UTILS_IMAGE_TAG=0.9.0
 
-# Organization for images
-# export IMAGE_REGISTRY_ORG=kabanero
+# Utils container image details
+export UTILS_IMAGE_NAME=pipelines-utils
+#export UTILS_IMAGE_TAG=0.15.0-alpha.4
+
+# Registry Organization for images. In case of dockerhub this would be dockerhub-id
+# export IMAGE_REGISTRY_ORG=icp4apps
 
 # Name of pipelines-index image (ci/package.sh)
 # export INDEX_IMAGE=pipelines-index
@@ -126,21 +129,25 @@ logged() {
 #expose an extension point for running before main 'env' processing
 exec_hooks $script_dir/ext/pre_env.d
 
-# image registry org for publishing stack
-if [ -z "$IMAGE_REGISTRY_ORG" ]
-then
-    export IMAGE_REGISTRY_ORG=kabanero
-fi
-
 # image registry for publishing stack
 if [ -z "$IMAGE_REGISTRY" ]
 then
-    export IMAGE_REGISTRY=docker.io
+    export IMAGE_REGISTRY=image-registry.openshift-image-registry.svc:5000
 fi
 
 if [ -z "$INDEX_IMAGE" ]
 then
     export INDEX_IMAGE=pipelines-index
+fi
+
+if [ -z "$UTILS_IMAGE_NAME" ]
+then
+    export UTILS_IMAGE_NAME=pipelines-utils
+fi
+
+if [ -z "$UTILS_IMAGE_TAG" ]
+then
+    export UTILS_IMAGE_TAG=latest
 fi
 
 if [ -z "$INDEX_VERSION" ]
@@ -153,9 +160,14 @@ then
     export USE_BUILDAH=false
 fi
 
-if [ -z "$IMAGE_REGISTRY_PUBLISH" ]
+if [ -z "$INDEX_IMAGE_REGISTRY_PUBLISH" ]
 then
-    export IMAGE_REGISTRY_PUBLISH=false
+    export INDEX_IMAGE_REGISTRY_PUBLISH=false
+fi
+
+if [ -z "$UTILS_IMAGE_REGISTRY_PUBLISH" ]
+then
+    export UTILS_IMAGE_REGISTRY_PUBLISH=false
 fi
 
 image_build() {
@@ -186,7 +198,7 @@ image_tag() {
 }
 
 image_push() {
-    if [ "$IMAGE_REGISTRY_PUBLISH" == "true" ]
+    if [ "$INDEX_IMAGE_REGISTRY_PUBLISH" == "true" ]
     then
         local name=$@
 
@@ -203,12 +215,12 @@ image_push() {
             exit 1
         fi
     else
-        echo "IMAGE_REGISTRY_PUBLISH=${IMAGE_REGISTRY_PUBLISH}; Skipping push of $@"
+        echo "INDEX_IMAGE_REGISTRY_PUBLISH=${INDEX_IMAGE_REGISTRY_PUBLISH}; Skipping push of $@"
     fi
 }
 
 image_registry_login() {
-    if [ "$IMAGE_REGISTRY_PUBLISH" == "true" ] && [ -n "$IMAGE_REGISTRY_PASSWORD" ]
+    if [ "$INDEX_IMAGE_REGISTRY_PUBLISH" == "true" ] && [ -n "$IMAGE_REGISTRY_PASSWORD" ]
     then
         if [ "$USE_BUILDAH" == "true" ]
         then
@@ -220,7 +232,7 @@ image_registry_login() {
         if [ $? -ne 0 ]
         then
             stderr "ERROR: Registry login failed. Will not push images to registry."
-            export IMAGE_REGISTRY_PUBLISH=false
+            export INDEX_IMAGE_REGISTRY_PUBLISH=false
         fi
     fi
 }

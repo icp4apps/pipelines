@@ -13,8 +13,8 @@ buildah bud -t ibmpipelines .
 # display list of container images
 buildah images
 
-# delete already running container
-buildah rm ibmpipelines-working-container
+# delete already running container (optional)
+#buildah rm ibmpipelines-working-container
 
 # build new pipelines container from image
 buildah from localhost/ibmpipelines

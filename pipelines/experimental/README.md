@@ -46,3 +46,10 @@ The pipeline invokes the following tasks to accomplish the steps listed:
 The mavencache pipelines shows the use of Tekton workspaces and Kubernetes persistence to reduce the build time of maven projects.
 
 These pipelines require a persistence volume claim name `kabanero-cache`, see ./sample-helper-files/mvncache/kabanero-cache-pvc.yaml for an example.
+
+
+# ODO Tech Preview pipelines
+
+The odotechpreview pipelines show a simple example of pipelines which use the devfile 2.0 file to locate the Dockerfile for build and also the deployment manifest for deployment.
+
+Until a supporting version of Tekton is included, These pipelines require persistence volume claims, see ./sample-helper-files/odotechpreview/ for examples. The pipelines include a stanza which removes this requirement which is commented out for now at the end of the respective pipelines.

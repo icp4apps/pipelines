@@ -1,0 +1,26 @@
+#Kabanero! on activate substitute Digest for text '@Digest@'
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: fetch-dockerfile-@Digest@
+spec:
+  workspaces:
+    - name: source
+      mountPath: /source
+  params:
+    - name: devfilePath
+      default: repo/devfile.yaml
+    - name: dockerfilePath
+      default: Dockerfile
+  steps:
+    - name: fetch-dockerfile
+      image: mikefarah/yq
+      script: |
+        DOCKERFILE_PATH="$(workspaces.source.path)/$(params.dockerfilePath)" 
+        DEVFILE="$(workspaces.source.path)/$(params.devfilePath)"
+
+        LOOKUP='metadata[alpha.dockerfile]'
+        DOCKERFILE_URL=$(yq r $DEVFILE $LOOKUP) 
+
+        # Fetch dockerfile
+        wget -O $DOCKERFILE_PATH $DOCKERFILE_URL

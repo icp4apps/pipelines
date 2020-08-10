@@ -12,6 +12,10 @@ echo
 echo "... finished installing test prereqs"
 echo
 
+
+. ./env.sh
+echo "[INFO] utility_script_enforce_stack_policy_path=$utility_script_enforce_stack_policy_path"
+echo "[INFO] utility_script_enforce_deploy_stack_policy_path=$utility_script_enforce_deploy_stack_policy_path"
 # Time to run tests now
 scriptHome=$(dirname $(readlink -f $0))
 level=$(date "+%Y-%m-%d_%H%M%S")

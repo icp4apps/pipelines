@@ -50,6 +50,19 @@ package() {
     echo ${tarballSHA}>> $assets_dir/${prefix}-pipelines-tar-gz-sha256
 }
 
+OPTIONAL_ARGS=1
+if [ $# -eq $OPTIONAL_ARGS ]
+then
+    pipelines_dir=$base_dir/pipelines/$1
+    if [ ! -d $pipelines_dir ]
+    then
+        echo "$pipelines_dir not found"
+        exit 1
+    fi;
+    package $pipelines_dir `basename $pipelines_dir`
+    exit 0
+fi;
+
 login_container_registry() {
     local container_registry_login_option=$1
     echo "[INFO] inside login_container_registry method Logging in the container registry using $container_registry_login_option "
@@ -106,7 +119,6 @@ replace_image_url() {
       exit 1
    fi
 }
-#Start
    
 #setting the Utils image name as Default image name in case it is empty or not provided from env.sh
 if [ -z "$UTILS_IMAGE_NAME" ]; then
@@ -114,7 +126,7 @@ if [ -z "$UTILS_IMAGE_NAME" ]; then
 fi
 #setting up the utils image tagname as TRAVIS_TAG in case it is not empty, which is during Travis automation step.
 # In other cases UTILS_IMAGE_TAG will be exported from env.sh file.
-if [[ ( "$IMAGE_REGISTRY_PUBLISH" == true ) && (! -z "$TRAVIS_TAG") ]]; then
+if [[ ( "$UTILS_IMAGE_REGISTRY_PUBLISH" == true ) && (! -z "$TRAVIS_TAG") ]]; then
    echo "Travis_tag variable is not empty TRAVIS_TAG=$TRAVIS_TAG"
    UTILS_IMAGE_TAG=$TRAVIS_TAG
 fi
@@ -143,7 +155,7 @@ else
    sleep 1
    exit 1
 fi
-if [[ ( "$IMAGE_REGISTRY_PUBLISH" == true ) ]]; then
+if [[ ( "$UTILS_IMAGE_REGISTRY_PUBLISH" == true ) ]]; then
    echo "[INFO] Publishing a new utils container image" 
    
    #Login to the registry if the username and password are present
@@ -222,15 +234,33 @@ if [[ ( "$IMAGE_REGISTRY_PUBLISH" == true ) ]]; then
       fetch_image_digest $destination_image_url
    fi  
 else
-   echo "[INFO] We are not publishing new utils container image since IMAGE_REGISTRY_PUBLISH is not set to true "
+   echo "[INFO] We are not publishing new utils container image since UTILS_IMAGE_REGISTRY_PUBLISH is not set to true "
    #calling method to fetch image digest value
    fetch_image_digest $destination_image_url
 fi
-#End
 
 
 package $eventing_pipelines_dir "events"
 
 
 echo -e "--- Created pipeline artifacts"
-
+# expose an extension point for running after main 'package' processing
+exec_hooks $script_dir/ext/post_package.d
+echo -e "--- Building nginx container"
+nginx_arg=
+echo "BUILDING: $IMAGE_REGISTRY_ORG/$INDEX_IMAGE:${INDEX_VERSION}" > ${build_dir}/image.$INDEX_IMAGE.${INDEX_VERSION}.log
+if image_build ${build_dir}/image.$INDEX_IMAGE.${INDEX_VERSION}.log \
+    $nginx_arg \
+    -t $IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$INDEX_IMAGE \
+    -t $IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$INDEX_IMAGE:${INDEX_VERSION} \
+    -f $script_dir/nginx/Dockerfile $script_dir
+then
+    echo "$IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$INDEX_IMAGE" >> $build_dir/image_list
+    echo "$IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$INDEX_IMAGE:${INDEX_VERSION}" >> $build_dir/image_list
+    echo "created $IMAGE_REGISTRY_ORG/$INDEX_IMAGE:${INDEX_VERSION}"
+    trace "${build_dir}/image.$INDEX_IMAGE.${INDEX_VERSION}.log"
+else
+    stderr "${build_dir}/image.$INDEX_IMAGE.${INDEX_VERSION}.log"
+    stderr "failed building $IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$INDEX_IMAGE:${INDEX_VERSION}"
+    exit 1
+fi
