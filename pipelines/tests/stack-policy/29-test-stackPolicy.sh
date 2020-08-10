@@ -78,7 +78,7 @@ cat <<- "EOF" > /workspace/$gitsource/pipelines/tests/stack-policy/kubectl_kaban
         },
         "cli": {
             "hostnames": [
-                "kabanero-cli-kabanero.apps.loners.os.fyre.ibm.com"
+                "www.openshift.com"
             ],
             "ready": "True"
         },
