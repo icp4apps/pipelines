@@ -242,7 +242,7 @@ fi
 
 
 package $eventing_pipelines_dir "events"
-package $eventing_pipelines_dir "odotechpreview"
+package $odo_pipelines_dir "odotechpreview"
 
 echo -e "--- Created pipeline artifacts"
 # expose an extension point for running after main 'package' processing
