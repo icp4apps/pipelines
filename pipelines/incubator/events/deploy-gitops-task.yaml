@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: deploy-kustomize-task
+  name: deploy-gitops-task
 spec:
   resources:
     inputs:
@@ -13,11 +13,11 @@ spec:
     image: icp4apps/pipelines-utils:latest
     script: |
         #!/usr/bin/env sh
-        
+
         # First check if a dryrun is successful
         echo "[INFO] Starting dry run..."
         kubectl apply -k /workspace/git-source/environments --dry-run=server
-        
+
         if [ $? != 0 ]; then
           echo "[ERROR] Dry run of deployment was unsuccessful. Please review errors above for more details. Service will not be deployed."
           exit 1
