@@ -10,7 +10,7 @@
    
    - The persistent volume `pv.yaml` is not applied so no persistent volume present.
  
-  Throubleshooting steps
+  Troubleshooting steps
    - Check whether your pipelinerun failed due to `unbound PersistentVolumeClaims`
    
    Command:
@@ -92,7 +92,7 @@
 ```
     
    - Try to find if the default storage class provisons Persistent Volumes when PVC(persistent volume claim) request comes in.
-     If not, then try to either tweak the storage class to provison persistent volume when PVC comes in, else delete the default storage class so the PVC when comes in it will bound to the `pv.yaml` PV which was statically created as per the assumptions.
+     If not, then try to either tweak the storage class to provision persistent volume when PVC comes in, else delete the default storage class so the PVC when comes in it will bound to the `pv.yaml` PV which was statically created as per the assumptions.
     
 ********
 
@@ -113,7 +113,7 @@ Error Snippet:
 Step failed
 
 
- Throubleshooting steps
+ Troubleshooting steps
   - When running your Tekton Pipelines, if you see a `fatal: could not read Username for *GitHub  repository*: No such device or address` message in your failing Task logs, this indicates there is no `tekton.dev/git`  annotated GitHub secret in use by the ServiceAccount that launched this PipelineRun. You need to create one via the Tekton Dashboard. The annotation will be added and the specified ServiceAccount will be patched.
  
  *******
@@ -131,11 +131,11 @@ Rerun the PipelineRun from the Tekton dashboard.  Usually seems to happen with t
 
 *****
 
- **4**. I do not have dockerhub container registry but the local container registry provided by Openshift, how would I use it ?
+ **4**. I do not have dockerhub container registry but the local container registry provided by OpenShift, how would I use it ?
   
   Troubleshooting Steps: 
-   - Find the local container registry URL given by Openshift in your cluster.
-     - Goto Openshift web console and select the workspace `default`.
+   - Find the local container registry URL given by OpenShift in your cluster.
+     - Goto OpenShift web console and select the workspace `default`.
      - Click the pod with name `docker-registry`.
      - Go to the tab `Environment` for `docker-registry` pod.
      - You will get the URL `OPENSHIFT_DEFAULT_REGISTRY` = `docker-registry.default.svc:5000`
@@ -178,7 +178,7 @@ Workaround:
 If you see such error of invalid username/password while pulling the kabanero stack it tries to pull, you can delete your docker secret and try to run the pipeline and check if it is getting passed this error. 
 If it does get ahead and fails in the pipeline to push the image to your docker repository , then you need to put back your docker secret with correct credentials so the pipeline could push the image to your docker repository.
 
-**7**. My persistant volume claims are not deleted after my pipelinerun has completed.
+**7**. My persistent volume claims are not deleted after my pipelinerun has completed.
 
 This is the default behavior of Tekton & Kubernetes.  When a pipelinerun has completed, the associated pods will be in completed state.  The PV claims are bounds to this resource and will be in terminating state til the pods are deleted.  This helps preserve logs for debugging.  All the associated pods and PV claims will get deleted when the the pipelinerun is deleted.  You can check on the pipelineruns using ```oc get pipelineruns``` and the appropriate run using ```oc delete pipelinerun <pipelinerun_name>```.
 
