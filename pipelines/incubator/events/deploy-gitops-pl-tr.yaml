@@ -1,7 +1,7 @@
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
-  name: deploy-kustomize-pl-pullrequest-binding
+  name: deploy-gitops-pl-pullrequest-binding
 spec:
   params:
   - name: gitrevision
@@ -28,7 +28,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
-  name: deploy-kustomize-pl-push-binding
+  name: deploy-gitops-pl-push-binding
 spec:
   params:
   - name: gitrevision
@@ -55,7 +55,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
-  name: deploy-kustomize-pl-template
+  name: deploy-gitops-pl-template
 spec:
   params:
   - name: event-ref
@@ -95,7 +95,7 @@ spec:
   - apiVersion: tekton.dev/v1beta1
     kind: PipelineRun
     metadata:
-      generateName: deploy-kustomize-pl-run-
+      generateName: deploy-gitops-pl-run-
       namespace: $(params.webhooks-tekton-target-namespace)
       labels:
         webhooks.tekton.dev/gitServer: $(params.webhooks-tekton-git-server)
@@ -105,7 +105,7 @@ spec:
     spec:
       serviceAccountName: $(params.webhooks-tekton-service-account)
       pipelineRef:
-        name: deploy-kustomize-pl
+        name: deploy-gitops-pl
       resources:
       - name: git-source
         resourceRef:

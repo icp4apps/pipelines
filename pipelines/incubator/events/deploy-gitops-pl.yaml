@@ -2,15 +2,15 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: deploy-kustomize-pl
+  name: deploy-gitops-pl
 spec:
   resources:
     - name: git-source
       type: git
   tasks:
-    - name: deploy-kustomize-task
+    - name: deploy-gitops-task
       taskRef:
-        name: deploy-kustomize-task
+        name: deploy-gitops-task
       resources:
         inputs:
         - name: git-source
