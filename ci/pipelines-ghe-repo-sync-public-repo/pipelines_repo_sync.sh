@@ -8,7 +8,7 @@ PIPELINES_SYNC_WORKSPACE=pipelines_sync_workspace
 
 PIPELINES_GHE_REPO=https://github.ibm.com/IBMCloudPak4Apps/pipelines.git
 PIPELINES_PUBLIC_REPO=https://github.com/icp4apps/pipelines.git
-TIMESTAMP=$(date +"%d/%m/%Y_%H:%M:%S")
+TIMESTAMP=$(date +"%d_%m_%Y_%H:%M:%S")
 SYNC_BRANCH_NAME=merge_ghe_code_to_public_repo_code_$TIMESTAMP
 MERGE_MESSAGE="merge ghe files to public pipelines repo"
 
