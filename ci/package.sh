@@ -9,6 +9,7 @@ exec_hooks $script_dir/ext/pre_package.d
 
 
 eventing_pipelines_dir=$base_dir/pipelines/incubator/events
+odo_pipelines_dir=$base_dir/pipelines/experimental/odotechpreview
 
 
 # directory to store assets for test or release
@@ -241,7 +242,7 @@ fi
 
 
 package $eventing_pipelines_dir "events"
-
+package $odo_pipelines_dir "odotechpreview"
 
 echo -e "--- Created pipeline artifacts"
 # expose an extension point for running after main 'package' processing
