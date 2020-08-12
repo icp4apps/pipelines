@@ -51,17 +51,9 @@ else
    echo "[INFO] Remote origin was set successfully to $PIPELINES_PUBLIC_REPO"
 fi
 
-echo "[INFO] Creating a branch out of cloned repo $PIPELINES_GHE_REPO master branch "
-git branch $SYNC_BRANCH_NAME
-if [ $? != 0 ]; then
-   echo "[ERROR] Some error in creating a branch $SYNC_BRANCH_NAME out of the cloned repo $PIPELINES_GHE_REPO master branch"
-   exit 1
-else
-   echo "[INFO] $SYNC_BRANCH_NAME Branch created successfully "
-fi
 
 echo "[INFO] checking out branch $SYNC_BRANCH_NAME"
-git checkout $SYNC_BRANCH_NAME
+git checkout -b $SYNC_BRANCH_NAME
 if [ $? != 0 ]; then
    echo "[ERROR] Some error in checking out the branch $SYNC_BRANCH_NAME "
    exit 1
@@ -69,28 +61,8 @@ else
    echo "[INFO] $SYNC_BRANCH_NAME Branch checked out successfully "
 fi
 
-echo "[INFO] Adding all the files from the branch $SYNC_BRANCH_NAME"
-git add .
-if [ $? != 0 ]; then
-   echo "[ERROR] Some error in adding all the files from the branch $SYNC_BRANCH_NAME that does not match with files from master branch of PIPELINES_PUBLIC_REPO=$PIPELINES_PUBLIC_REPO"
-   exit 1
-else
-   echo "[INFO] Files from the branch $SYNC_BRANCH_NAME that differs with the files from the master branch of the repository $PIPELINES_PUBLIC_REPO was git added successfully before committing them "
-fi
 
-echo "[INFO] Printing all the added files"
-git status
-
-echo "Committing the changes of all the files that got added."
-git commit -m "$MERGE_MESSAGE"
-if [ $? != 0 ]; then
-   echo "[ERROR] Some error in commiting all the files from the branch $SYNC_BRANCH_NAME before push to the PIPELINES_PUBLIC_REPO=$PIPELINES_PUBLIC_REPO"
-   exit 1
-else
-   echo "[INFO] Files from the branch $SYNC_BRANCH_NAME commited successfully. "
-fi
-
-echo "[INFO] Pushing all the added files to the repository $PIPELINES_PUBLIC_REPO"
+echo "[INFO] Pushing the changes to the repository $PIPELINES_PUBLIC_REPO"
 git push origin $SYNC_BRANCH_NAME
 if [ $? != 0 ]; then
    echo "[ERROR] Some error in pushing all the comitted files from the branch $SYNC_BRANCH_NAME to the PIPELINES_PUBLIC_REPO=$PIPELINES_PUBLIC_REPO"
