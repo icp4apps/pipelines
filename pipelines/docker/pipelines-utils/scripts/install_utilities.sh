@@ -20,6 +20,7 @@ yum install -y kubectl
 yum install -y python2
 yum install -y python3
 yum install -y git
+yum install -y wget
 wait
 
 cd ..
@@ -69,6 +70,11 @@ wait
 
 cd ..
 rm -rf packages
+
+cd /usr/local/bin/
+wget https://github.com/rhd-gitops-example/services/releases/download/v0.2.2/services_linux
+mv services_linux services
+chmod 755 services
 
 echo "Cleaning up tendrils from installation..."
 dnf clean all
