@@ -111,7 +111,13 @@ replace_image_url() {
    echo "[INFO] Replacing the utils container image string from 'image : $image_original_string' with 'image : $image_digest_value' in all the pipeline task yaml files";
       
    echo "[INFO] find and sed replace image_original_string=$image_original_string to  image_digest_value=$image_digest_value"
-   find ./ -type f -name '*.yaml' -exec sed -i 's|'"$image_original_string"'|'"$image_digest_value"'|g' {} +
+   if [[ "$OSTYPE" == "darwin"* ]]; then
+      echo "[INFO] The script is running in Mac OS"
+      find ./ -type f -name '*.yaml' -exec sed -i '' 's|'"$image_original_string"'|'"$image_digest_value"'|g' {} +
+   else
+      echo "[INFO] The script is running in unix OS"
+      find ./ -type f -name '*.yaml' -exec sed -i 's|'"$image_original_string"'|'"$image_digest_value"'|g' {} +
+   fi
    if [ $? == 0 ]; then
       echo "[INFO] Updated utils container image string from original 'image : $image_original_string' with 'image : $image_digest_value' in all the pipeline taks yaml files successfully"
    else
