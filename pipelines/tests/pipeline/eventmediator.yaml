@@ -34,7 +34,7 @@ spec:
     name: kabanero-pipelines-webhook
     selector:
       repositoryType:
-        file: .kabanero-pipelines.yaml
+        file: .pipelines.yaml
         newVariable: body.webhooks-kabanero-pipelines-config
       urlPattern: webhook
     sendTo:

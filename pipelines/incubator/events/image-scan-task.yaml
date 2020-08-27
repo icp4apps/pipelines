@@ -24,7 +24,7 @@ spec:
     default: ""
   - name: scansDir
     description: The relative directory to save the scan outputs to
-    default: kabanero/scans
+    default: teams/scans
   - name: pathToInputFile
     description: The scanner's XCCDF or OVAL file
     default: /usr/local/share/openscap/cpe/openscap-cpe-oval.xml
@@ -35,7 +35,7 @@ spec:
     type: string
     default: "null"
   steps:
-    - name: mount-image          
+    - name: mount-image
       securityContext:
         privileged: true
       image: icp4apps/pipelines-utils:latest
@@ -55,7 +55,7 @@ spec:
              exit $retVal
           fi
           echo "INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE=$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE"
- 
+
           # Configure image registry access in the container by adding it to the insecure registry list or enabling TLS verification
           # by adding it to the trust store based on OpenShift cluster resource configuration.
           echo "[INFO] Running the script /scripts/image_registry_access_setup.sh ...."
@@ -66,7 +66,7 @@ spec:
              echo "[ERROR] The script failed(/scripts/image_registry_access_setup.sh), and the image registry access setup was not complete, aborting the pipelinerun" >&2
              exit $retVal
           fi
-        
+
           echo "Pulling image docker://$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE"
           buildah from docker://$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE
           echo $(buildah mount $(buildah containers -q)) > /var/lib/containers/rootfs.txt
@@ -101,14 +101,14 @@ spec:
           imageDir=/var/lib/containers/merged
 
           #TODO : Here we need to call the script 'imageurl_imagename_lowercase.sh' to lowercase the imagename.
-          # For now we needed to remove the code, because we moved out the script from utilities task to 'kabanero-utils' image
+          # For now we needed to remove the code, because we moved out the script from utilities task to 'pipelines-utils' image
           # and this image uses some other image.
           ########
           # Tracing prefixes
           INFO="[INFO]"
           WARNING="[WARNING]"
           ERROR="[ERROR]"
-          
+
           docker_registry_url=$(inputs.resources.docker-image.url)
           docker_imagename=$(inputs.params.docker-imagename)
           docker_imagetag=$(inputs.params.docker-imagetag)
@@ -128,21 +128,21 @@ spec:
                       docker_registry_url=${docker_registry_url%/}
                    fi
                    NUM_SLASHES=$(awk -F"/" '{print NF-1}' <<< "${docker_registry_url}")
-                
+
                    # This case is to handle jenkins pipeline scenario, where the user would specify the image name in the app-deploy.yaml
                    if [[ (-f /workspace/$gitsource/$app_deploy_filename) && ("$NUM_SLASHES" = 1) ]];then
                       cd /workspace/$gitsource
                       APPNAME=$(awk '/^  name:/ {print $2; exit}' $app_deploy_filename)
                       docker_imagename_lowercase=$(echo $APPNAME |  tr '[:upper:]' '[:lower:]')
                    else
-                      #Checking the migration case where imagename can be empty and if registry url has imagename. 
-                      #ex: image-registry.openshift-image-registry.svc:5000/kabanero/kab60-java-spring-boot2:e7a1448806240f0294035097c0203caa3f
+                      #Checking the migration case where imagename can be empty and if registry url has imagename.
+                      #ex: image-registry.openshift-image-registry.svc:5000/kabanero/java-spring-boot2:e7a1448806240f0294035097c0203caa3f
                       if [ "$NUM_SLASHES" = 1 ]; then
                          echo "$ERROR image registry url=$docker_registry_url does not have imagename and tagname values, you can specify it in your pipeline resource or through trigger template and try again."
                          exit 1
                       elif [ "$NUM_SLASHES" = 2 ]; then
                          url_imagename_tagname_Part=$(echo $docker_registry_url | rev | cut -d"/" -f1 | rev)
-                         if [[ ( ! -z $url_imagename_tagname_Part ) && ( $url_imagename_tagname_Part == *":"* ) ]]; then 
+                         if [[ ( ! -z $url_imagename_tagname_Part ) && ( $url_imagename_tagname_Part == *":"* ) ]]; then
                             imagename=$(cut -d ':' -f 1 <<< "$url_imagename_tagname_Part" )
                             docker_imagename_lowercase=$(echo $imagename |  tr '[:upper:]' '[:lower:]')
                             docker_imagetag=$(cut -d ':' -f 2- <<< "$url_imagename_tagname_Part" )
@@ -154,26 +154,26 @@ spec:
                             exit 1
                          fi
                          docker_registry_url=$(echo $docker_registry_url | rev | cut -d"/" -f2- | rev)
-                      fi   
+                      fi
                    fi
-                   
+
                 elif [[ ! -z "$docker_imagename" ]]; then
                         docker_imagename_lowercase=$(echo $docker_imagename |  tr '[:upper:]' '[:lower:]')
                 fi
-                
+
                 #If it reaches here it means it has set the variable docker_imagename_lowercase correctly.
                 # If docker_registry_url value does not have trailing '/' add it before concatenating it with imagename
                 if [[ $docker_registry_url != */ ]];then
                    docker_registry_url=$docker_registry_url/
                 fi
-                  
+
                 #Concatenate docker_registry_url with the docker_imagename_lowercase and docker_imagetag(if exists)
                 if [[ (! -z "$docker_imagetag") && ("$docker_imagetag" != "null") ]]; then
                    DOCKER_IMAGE_URL=$docker_registry_url$docker_imagename_lowercase:$docker_imagetag
                 else
                    DOCKER_IMAGE_URL=$docker_registry_url$docker_imagename_lowercase
                 fi
-           
+
                 #End of else
              fi
           else
@@ -183,7 +183,7 @@ spec:
           fi
           INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE=$DOCKER_IMAGE_URL
           #######
-          
+
           echo "INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE=$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE"
 
           outputDir=/workspace/scans/$(inputs.params.scansDir)/$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE/$imageid

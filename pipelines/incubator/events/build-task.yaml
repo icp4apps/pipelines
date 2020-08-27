@@ -21,8 +21,8 @@ spec:
     type: string
   steps:
   - name: enforce-stack-policy-pre-build
-    # This step enforces the pre build stack governance policy configured in the Kabanero CR.
-    # Refer to https://kabanero.io/docs/ref/general/reference/semver-governance.html for policy details.
+    # This step enforces the pre build stack governance policy configured in the Accelerator for Teams CR.
+    # Refer to https://www.ibm.com/support/knowledgecenter/SSCSJL_4.2.x/docs/ref/general/configuration/stack-governance.html for policy details.
     securityContext:
       privileged: true
     image: icp4apps/pipelines-utils:latest
@@ -36,7 +36,7 @@ spec:
       value: git-source
     volumeMounts:
     - mountPath: /var/lib/containers
-      name: varlibcontainers     
+      name: varlibcontainers
   - name: build
     # This steps builds the source project using appsody build.
     securityContext:
@@ -59,7 +59,7 @@ spec:
         fi
         echo "[INFO] Completed setup for image registry access."
 
-        # If the image registry URL of the stack image is the external route of the internal registry, change the stack regisry URL to the 
+        # If the image registry URL of the stack image is the external route of the internal registry, change the stack regisry URL to the
         # internal route.  This avoids having to configure additional secrets, certificates etc.
         OUTPUTS_STACK_IMAGE_REGISTRY_URL=$( /scripts/stack_registry_url_setup.sh )
         retVal=$?
@@ -98,8 +98,8 @@ spec:
     - mountPath: /var/lib/containers
       name: varlibcontainers
   - name: enforce-stack-policy-post-build
-    # This step enforces the post build stack governance policy configured in the Kabanero CR.
-    # Refer to https://kabanero.io/docs/ref/general/reference/semver-governance.html for policy details.
+    # This step enforces the pre build stack governance policy configured in the Accelerator for Teams CR.
+    # Refer to https://www.ibm.com/support/knowledgecenter/SSCSJL_4.2.x/docs/ref/general/configuration/stack-governance.html for policy details.
     securityContext:
       privileged: true
     image: icp4apps/pipelines-utils:latest
@@ -113,7 +113,7 @@ spec:
       value: git-source
     volumeMounts:
     - mountPath: /var/lib/containers
-      name: varlibcontainers   
+      name: varlibcontainers
   volumes:
   - name: varlibcontainers
     emptyDir: {}

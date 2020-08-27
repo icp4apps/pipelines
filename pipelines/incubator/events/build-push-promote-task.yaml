@@ -8,7 +8,7 @@
 # If gitops is enabled, a secret called gitops-token also needs to be configured with the token for the gitops repo.
 #
 # Insecure registy access or secure connection to the image registries can be setup by configuring the
-# OpenShift cluster resource.  For more information, refer to https://kabanero.io/guides/working-with-pipelines/#transport-layer-security-tls-verification-for-image-registry-access-in-pipelines
+# OpenShift cluster resource.  For more information, refer to https://www.ibm.com/support/knowledgecenter/SSCSJL_4.2.x/guides/working-with-pipelines/working-with-pipelines.html
 #
 apiVersion: tekton.dev/v1beta1
 kind: Task
@@ -33,8 +33,8 @@ spec:
     type: string
   steps:
   - name: enforce-stack-policy-pre-build
-    # This step enforces the pre build stack governance policy configured in the Kabanero CR.
-    # Refer to https://kabanero.io/docs/ref/general/reference/semver-governance.html for policy details.
+    # This step enforces the pre build stack governance policy configured in the Accelerator for Teams CR.
+    # Refer to https://www.ibm.com/support/knowledgecenter/SSCSJL_4.2.x/docs/ref/general/configuration/stack-governance.html for policy details.
     securityContext:
       privileged: true
     image: icp4apps/pipelines-utils:latest
@@ -114,8 +114,8 @@ spec:
     - mountPath: /var/lib/containers
       name: varlibcontainers
   - name: enforce-stack-policy-post-build
-    # This step enforces the post build stack governance policy configured in the Kabanero CR.
-    # Refer to https://kabanero.io/docs/ref/general/reference/semver-governance.html for policy details.
+    # This step enforces the post build stack governance policy configured in the Accelerator for Teams CR.
+    # Refer to https://www.ibm.com/support/knowledgecenter/SSCSJL_4.2.x/docs/ref/general/configuration/stack-governance.html for policy details.
     securityContext:
       privileged: true
     image: icp4apps/pipelines-utils:latest
@@ -258,13 +258,13 @@ spec:
           touch $GITCONFIG
 
           if [ -z "$GITOPS_COMMIT_USER_NAME" ]; then
-            echo "[WARN] gitops-commit-user-name not configured in the gitops-map config map.  Using a default value of kabanero."
-            GITOPS_COMMIT_USER_NAME="kabanero"
+            echo "[WARN] gitops-commit-user-name not configured in the gitops-map config map.  Using a default value of CP4Apps."
+            GITOPS_COMMIT_USER_NAME="CP4Apps"
           fi
 
           if [ -z "$GITOPS_COMMIT_USER_EMAIL" ]; then
-            echo "[WARN] gitops-commit-user-email not configured in the gitops-map config map.  Using a default value of functional-id@kabanero.io."
-            GITOPS_COMMIT_USER_EMAIL="functional-id@kabanero.io"
+            echo "[WARN] gitops-commit-user-email not configured in the gitops-map config map.  Using a default value of functional-id@CP4Apps.io."
+            GITOPS_COMMIT_USER_EMAIL="functional-id@CP4Apps.io"
           fi
 
           echo "[user]" >> $GITCONFIG
@@ -281,7 +281,7 @@ spec:
 
           # Determine repo type
           if [ -z "$GITOPS_REPOSITORY_TYPE" ]; then
-            echo "[WARN] gitops-commit-user-email not configured in the gitops-map config map.  Using a default value of functional-id@kabanero.io."
+            echo "[WARN] gitops-repository-type not configured in the gitops-map config map.  Using a default value of github."
             GITOPS_REPOSITORY_TYPE="github"
           fi
 
