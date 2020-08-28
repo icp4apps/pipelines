@@ -1,10 +1,5 @@
 yum install -y sudo
 echo "Installing and setting up kubectl starting...."
-curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
-chmod +x ./kubectl
-sudo mv ./kubectl /usr/local/bin/kubectl
-kubectl version --client
-
 cat <<- "EOF" > /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
