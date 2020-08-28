@@ -12,7 +12,7 @@ spec:
     interceptors:
     - cel:
         filter: 'body["webhooks-tekton-event-type"] == "push" && body["webhooks-tekton-git-branch"] == "master"'
-    name: kabanero-push-event
+    name: push-event
     template:
       apiversion: v1alpha1
       name: build-push-promote-pl-@Digest@-template
@@ -22,7 +22,7 @@ spec:
     interceptors:
     - cel:
         filter: 'body["webhooks-tekton-event-type"] == "pull_request" && body["webhooks-tekton-git-branch"] != "master" && (body["action"] == "opened" || body["action"] == "synchronize" ) '
-    name: kabanero-pullrequest-event
+    name: pullrequest-event
     template:
       apiversion: v1alpha1
       name: build-pl-@Digest@-template
@@ -32,7 +32,7 @@ spec:
     interceptors:
     - cel:
         filter: 'body["webhooks-tekton-event-type"] == "tag" '
-    name: kabanero-tag-event
+    name: tag-event
     template:
       apiversion: v1alpha1
       name: image-retag-pl-@Digest@-template
@@ -42,7 +42,7 @@ spec:
     template:
      apiversion: v1alpha1
      name: monitor-task-@Digest@-template
-    name: kabanero-monitor-task-event
+    name: monitor-task-event
     interceptors:
     - cel:
         filter: 'body["webhooks-tekton-event-type"] == "pull_request" && body["webhooks-tekton-git-branch"] != "master" && (body["action"] == "opened" || body["action"] == "synchronize" ) '

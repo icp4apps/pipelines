@@ -1,12 +1,12 @@
 #!/bin/sh
-# This script will build 'kabanero-utils' docker container image with given image tagname and based on the dockerhub credentials given to it, the script will
-# push the image to 'kabanero' dockerhub. Also along with the image tagname the image will be marked as 'latest' tag and pushed to the dockerhub as well.
+# This script will build 'pipelines-utils' docker image with given image tagname and based on the dockerhub credentials given to it. The script will
+# push the image to the approprite registry. Also along with the image tagname the image will be marked as 'latest' tag and pushed to the dockerhub as well.
 
 display_help() {
  echo "$HELP **************************************************************************************************************************************************************"
  echo "$HELP 'build_utils.sh' script usage"
  echo "$HELP"
- echo "$HELP ./build_utils.sh -u <dockerhub userid> -t <kabanero-utils image tagname>"
+ echo "$HELP ./build_utils.sh -u <dockerhub userid> -t <pipelines-utils image tagname>"
  echo "$HELP **************************************************************************************************************************************************************"
  exit 1
 }
@@ -53,7 +53,7 @@ then
   exit 1
 fi
 
-image_name="kabanero-utils"
+image_name="pipelines-utils"
 latest_tag="latest"
 
 echo "$INFO Logging in dockerhub with userid $dockerhubUserid"
