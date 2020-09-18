@@ -48,7 +48,7 @@ package() {
     # build archive of tekton pipelines
     tar -czf $assets_dir/${prefix}-pipelines.tar.gz -C $pipelines_dir ${assets_names}
     tarballSHA=$(($sha256cmd $assets_dir/${prefix}-pipelines.tar.gz) | awk '{print $1}')
-    echo ${tarballSHA}>> $assets_dir/${prefix}-pipelines-tar-gz-sha256
+    echo ${tarballSHA}> $assets_dir/${prefix}-pipelines-tar-gz-sha256
 }
 
 OPTIONAL_ARGS=1
