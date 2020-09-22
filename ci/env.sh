@@ -103,6 +103,7 @@ trace() {
             echo -e "\n--- Output (at most 4000 lines) ---"
             tail -n 4000 "$1"
             echo "--- ---"
+        fi
     else
         echo "$1"
     fi
