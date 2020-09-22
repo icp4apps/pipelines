@@ -84,7 +84,6 @@ stderr() {
         else
             # Work around CI log limits
             >&2 echo -e "\n--- Output (at most 4000 lines) ---"
-        fi
             >&2 tail -n 4000 "$1"
             >&2 echo "--- ---"
         fi
