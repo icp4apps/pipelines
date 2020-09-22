@@ -97,7 +97,7 @@ spec:
     - -ce
     - |
       set -e
-      cat <<EOF | python
+      cat <<EOF | python2
       import time, os, json, requests, pprint, shutil, distutils.util
       from kubernetes import client, config
       def diff(li1, li2):
