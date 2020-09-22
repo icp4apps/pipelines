@@ -11,6 +11,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 
 EOF
 
+
 yum install -y kubectl
 yum install -y python2
 yum install -y python3
@@ -18,10 +19,21 @@ yum install -y git
 yum install -y wget
 wait
 
+pip2 install --no-cache-dir -U passlib
+pip2 install --no-cache-dir -U requests
+pip2 install --no-cache-dir -U kubernetes==${KUBE_CLIENT_VERSION}
+
+pip3 install --no-cache-dir -U passlib
+pip3 install --no-cache-dir -U requests
+pip3 install --no-cache-dir -U kubernetes==${KUBE_CLIENT_VERSION}
+
 cd ..
-git clone https://github.com/baloise/gitopscli.git
-pip3 install gitopscli/
-rm -rf gitopscli
+
+# Not doing gitops at this time
+# git clone https://github.com/baloise/gitopscli.git
+# pip3 install gitopscli/
+# rm -rf gitopscli
+
 cd packages
 
 yum localinstall -y glibc-utils.rpm
@@ -66,10 +78,10 @@ wait
 cd ..
 rm -rf packages
 
-cd /usr/local/bin/
-wget https://github.com/rhd-gitops-example/services/releases/download/v0.2.2/services_linux
-mv services_linux services
-chmod 755 services
+# cd /usr/local/bin/
+# wget https://github.com/rhd-gitops-example/services/releases/download/v0.2.2/services_linux
+# mv services_linux services
+# chmod 755 services
 
 echo "Cleaning up tendrils from installation..."
 dnf clean all
@@ -127,11 +139,14 @@ if ! [ -x "$(command -v skopeo)" ]; then
 else
 	echo -e "skopeo: ${GREEN}TRUE${NC}"
 fi
-if ! [ -x "$(command -v gitopscli)" ]; then
-  echo -e "gitopscli: ${RED}FALSE${NC}"
-else
-	echo -e "gitopscli: ${GREEN}TRUE${NC}"
-fi
+# if ! [ -x "$(command -v gitopscli)" ]; then
+#   echo -e "gitopscli: ${RED}FALSE${NC}"
+# else
+# 	echo -e "gitopscli: ${GREEN}TRUE${NC}"
+# fi
+
+
 echo -e "If any packages are marked ${RED}FALSE${NC} there was an error."
 echo "Installing and setting up dependencies completed. Packages include:"
-echo "sudo, appsody, buildah, kubectl, python2, python3, git, jq, skopeo, gitopscli"
+# echo "sudo, appsody, buildah, kubectl, python2, python3, git, jq, skopeo, gitopscli"
+echo "sudo, appsody, buildah, kubectl, python2, python3, git, jq, skopeo"

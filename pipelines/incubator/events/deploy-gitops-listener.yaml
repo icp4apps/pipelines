@@ -8,6 +8,7 @@ spec:
   - bindings:
     - apiversion: v1alpha1
       name: deploy-gitops-pl-push-binding
+      ref: deploy-gitops-pl-push-binding
     interceptors:
     - cel:
         filter: 'body["webhooks-tekton-event-type"] == "push" && body["webhooks-tekton-git-branch"] == "master"'
