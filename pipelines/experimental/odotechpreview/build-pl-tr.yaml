@@ -115,14 +115,10 @@ spec:
           value: $(params.webhooks-tekton-docker-registry)/$(params.webhooks-tekton-git-repo)
       workspaces:
         - name: shared-workspace
-          persistentVolumeClaim:
-            claimName: pull-pvc
-###########################
-# Requires Tekton >v0.12.0
-#      volumeClaimTemplate:
-#        spec:
-#          accessModes:
-#            - ReadWriteOnce
-#          resources:
-#            requests:
-#              storage: 50Mi
+          volumeClaimTemplate:
+            spec:
+              accessModes:
+                - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 50Mi

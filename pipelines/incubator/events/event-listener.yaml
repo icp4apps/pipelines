@@ -9,6 +9,7 @@ spec:
   - bindings:
     - apiversion: v1alpha1
       name: build-push-promote-pl-@Digest@-push-binding
+      ref: build-push-promote-pl-@Digest@-push-binding
     interceptors:
     - cel:
         filter: 'body["webhooks-tekton-event-type"] == "push" && body["webhooks-tekton-git-branch"] == "master"'
@@ -19,6 +20,7 @@ spec:
   - bindings:
     - apiversion: v1alpha1
       name: build-pl-@Digest@-pullrequest-binding
+      ref: build-pl-@Digest@-pullrequest-binding
     interceptors:
     - cel:
         filter: 'body["webhooks-tekton-event-type"] == "pull_request" && body["webhooks-tekton-git-branch"] != "master" && (body["action"] == "opened" || body["action"] == "synchronize" ) '
@@ -29,6 +31,7 @@ spec:
   - bindings:
     - apiversion: v1alpha1
       name: image-retag-pl-@Digest@-push-binding
+      ref: image-retag-pl-@Digest@-push-binding
     interceptors:
     - cel:
         filter: 'body["webhooks-tekton-event-type"] == "tag" '
@@ -39,6 +42,7 @@ spec:
   - bindings:
     - apiversion: v1alpha1
       name: monitor-task-@Digest@-github-binding
+      ref: monitor-task-@Digest@-github-binding
     template:
      apiversion: v1alpha1
      name: monitor-task-@Digest@-template

@@ -30,7 +30,7 @@ package() {
     echo "contents:" > $asset_manifest
 
     # for each of the assets generate a sha256 and add it to the manifest.yaml
-    assets_paths=$(find $pipelines_dir -mindepth 1 -maxdepth 1 -type f -name '*')
+    assets_paths=$(find $pipelines_dir -mindepth 1 -maxdepth 1 -type f -name '*'|grep -v ".DS_Store")
     local assets_names
     for asset_path in ${assets_paths}
     do
@@ -46,9 +46,14 @@ package() {
     done
 
     # build archive of tekton pipelines
+    COPYFILE_DISABLE=1; export COPYFILE_DISABLE #avoid hidden ._foo files on Mac
     tar -czf $assets_dir/${prefix}-pipelines.tar.gz -C $pipelines_dir ${assets_names}
     tarballSHA=$(($sha256cmd $assets_dir/${prefix}-pipelines.tar.gz) | awk '{print $1}')
-    echo ${tarballSHA}>> $assets_dir/${prefix}-pipelines-tar-gz-sha256
+    echo ${tarballSHA}> $assets_dir/${prefix}-pipelines-tar-gz-sha256
+    echo "*************************************************"
+    echo "Created ${prefix}-pipelines.tar.gz"
+    echo ${prefix}-pipelines-tar-gz-sha256: ${tarballSHA}
+    echo "*************************************************"
 }
 
 OPTIONAL_ARGS=1
