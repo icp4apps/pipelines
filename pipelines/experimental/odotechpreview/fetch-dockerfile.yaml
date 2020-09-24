@@ -14,13 +14,13 @@ spec:
       default: Dockerfile
   steps:
     - name: fetch-dockerfile
-      image: mikefarah/yq
+      image: icp4apps/pipelines-utils:latest
       script: |
         DOCKERFILE_PATH="$(workspaces.source.path)/$(params.dockerfilePath)" 
         DEVFILE="$(workspaces.source.path)/$(params.devfilePath)"
 
-        LOOKUP='metadata[alpha.dockerfile]'
-        DOCKERFILE_URL=$(yq r $DEVFILE $LOOKUP) 
+        LOOKUP='.metadata."alpha.dockerfile"'
+        DOCKERFILE_URL=$(yq -r $LOOKUP $DEVFILE)
 
         # Fetch dockerfile
         wget -O $DOCKERFILE_PATH $DOCKERFILE_URL

@@ -10,7 +10,7 @@ spec:
     description: Reference of the image buildah will produce.
   - name: BUILDER_IMAGE
     description: The location of the buildah builder image.
-    default: quay.io/buildah/stable:v1.14.8
+    default: icp4apps/pipelines-utils:latest
   - name: STORAGE_DRIVER
     description: Set buildah storage driver
     default: overlay
