@@ -19,25 +19,29 @@ spec:
       image: icp4apps/pipelines-utils:latest
       script: |
         MANIFEST_PATH="$(workspaces.source.path)/$(params.manifestSubPath)"
-        DEVFILE="$(workspaces.source.path)/$(params.devfilePath)"
+        DEVFILE="$(workspaces.source.path)/devfile.yaml"
+        LOCAL_DEVFILE="$(workspaces.source.path)/$(params.devfilePath)"
 
+        yq -r . ${DEVFILE}
+
+        # Fetch deployment manifest from stack devfile
         LOOKUP='.metadata."alpha.deployment-manifest"'
         MANIFEST_URL=$(yq -r $LOOKUP $DEVFILE)
-
-        # Fetch deployment manifest
         wget -O $MANIFEST_PATH $MANIFEST_URL
+        cat ${MANIFEST_PATH}
 
         # Replace image in deployment manifest
-        cat $MANIFEST_PATH
         sed -i "s|{{.CONTAINER_IMAGE}}|$(params.newImage)|" $MANIFEST_PATH
 
-        # Replace component name based on devfile.yaml
-        COMPONENT_NAME=$(yq -r '.components[0].container.name' $DEVFILE)
+        yq -r . ${LOCAL_DEVFILE}
+
+        # Replace component name, based on local devfile.yaml
+        COMPONENT_NAME=$(yq -r '.components[0].container.name' $LOCAL_DEVFILE)
         sed -i "s/{{.COMPONENT_NAME}}/${COMPONENT_NAME}/" $MANIFEST_PATH
 
         # Replace port used by application, based on devfile.yaml
         LOOKUP='.components[0].container.endpoints[0].targetPort'
-        PORT=$(yq -r $LOOKUP $DEVFILE)
+        PORT=$(yq -r $LOOKUP $LOCAL_DEVFILE)
         sed -i "s/{{.PORT}}/${PORT}/" $MANIFEST_PATH
 
-        cat $MANIFEST_PATH
+        cat ${MANIFEST_PATH}
