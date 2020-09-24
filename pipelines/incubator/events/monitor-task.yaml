@@ -61,7 +61,7 @@ spec:
     # Up to here
   steps:
   - name: check
-    image: icp4apps/pipelines-utils:latest
+    image: mchengdocker/pipelines-utils:latest
     env:
       - name: EVENTID
         valueFrom:
@@ -98,140 +98,200 @@ spec:
     - |
       set -e
       cat <<EOF | python2
+      #CODE_TO_UNIT_TEST_STARTS_HERE
       import time, os, json, requests, pprint, shutil, distutils.util
       from kubernetes import client, config
-      def diff(li1, li2):
-        li_dif = [i for i in li1 + li2 if i not in li1 or i not in li2]
-        return li_dif
-      config.load_incluster_config()
-      api_instance = client.CustomObjectsApi(client.ApiClient(client.Configuration()))
-      gitPRcontext = "Tekton"
-      gitPRurl = ""
-      if not "$URL".startswith("http"):
-        pipelineRunURLPrefix = "http://" + "$URL"
-      else:
-        pipelineRunURLPrefix = "$URL"
-      verifySSL = not bool(distutils.util.strtobool("$SKIPSSLVERIFY"))
-      if "$GITPROVIDER" == "github":
-        statusurl = "$STATUSES_URL"
-        pendingData = {
-          "state": "pending",
-          "description": "pipelines in progress",
-          "target_url": pipelineRunURLPrefix + "/k8s/ns/kabanero/tekton.dev~v1alpha1~PipelineRun",
-          "context": "Tekton"
-        }
-        resp = requests.post(statusurl, json.dumps(pendingData), headers = {'Content-Type': 'application/json', 'Authorization': "Token $GITTOKEN"}, verify=verifySSL)
-        print(resp)
-      if "$GITPROVIDER" == "gitlab":
-        statusurl = "$GITAPIURL" + "/" + "$STATUSES_URL" + "?state=pending&name=Tekton&target_url=" + pipelineRunURLPrefix + "/k8s/ns/kabanero/tekton.dev~v1alpha1~PipelineRun"
-        resp = requests.post(statusurl, headers = {'Authorization': "Bearer $GITTOKEN"}, verify=verifySSL)
-        print(resp)
-      labelToCheck = "triggers.tekton.dev/triggers-eventid=$EVENTID"
-      runsPassed = []
-      runsFailed = []
-      runsIncomplete = []
-      runsMissing = []
-      failed = 0
-      i = range(180)
-      initial_runs = api_instance.list_cluster_custom_object("tekton.dev", "v1beta1", "pipelineruns", label_selector=labelToCheck)["items"]
-      for x in i:
-          time.sleep( 10 )
-          runsPassed = []
-          runsFailed = []
-          runsIncomplete = []
-          # To test this we need a webhook that will kick off two Pipelines
-          # We will then delete one PipelineRun and observe it is correctly picked up as missing
-          # This is easiest done by reopening an existing PullRequest
-          # It's important to delete the PipelineRun only after the monitor task is already running because
-          # the first thing it's going to do is figure out the PipelineRuns to watch over
-          failed = 0
-
-          found_runs = api_instance.list_cluster_custom_object("tekton.dev", "v1beta1", "pipelineruns", label_selector=labelToCheck)["items"]
-          missingRuns = diff(initial_runs, found_runs)
-          if len(missingRuns) > 0:
-            for missingRun in missingRuns:
-              pr = missingRun["metadata"]["name"]
-              namespace = missingRun["metadata"]["namespace"]
-              pipeline = missingRun["spec"]["pipelineRef"]["name"]
-              link = pipelineRunURLPrefix + "/k8s/ns/kabanero/tekton.dev~v1alpha1~PipelineRun"
-              data = "[**$COMMENT_MISSING**](" + link + ") | " + pipeline + " | " + pr + " | " + namespace
-              if data not in runsMissing:
-                # Don't add duplicates. Fear not, once this run is found it'll be removed
-                runsMissing.append(data)
-          if len(found_runs) > 0:
-            for entry in found_runs:
-              pr = entry["metadata"]["name"]
-              namespace = entry["metadata"]["namespace"]
-              pipeline = entry["spec"]["pipelineRef"]["name"]
-              link = pipelineRunURLPrefix + "/k8s/ns/kabanero/tekton.dev~v1alpha1~PipelineRun/" + pr
-              missingLink = pipelineRunURLPrefix + "/#/namespaces/" + namespace + "/pipelineruns/"
-              missingDataEntry = "[**$COMMENT_MISSING**](" + missingLink + ") | " + pipeline + " | " + pr + " | " + namespace
-              if missingDataEntry in runsMissing:
-                runsMissing.remove(missingDataEntry)
-              print("Checking PipelineRun " + pr + " in namespace " + namespace)
-              if entry["status"]["conditions"][0]["status"] == u'True' and entry["status"]["conditions"][0]["type"] == u'Succeeded':
-                print("Success - pipelinerun " + pr + " in namespace " + namespace)
-                runsPassed.append("[**$COMMENT_SUCCESS**](" + link + ") | " + pipeline + " | " +  pr + " | " + namespace)
-                continue
-              if entry["status"]["conditions"][0]["status"] == u'False' and entry["status"]["conditions"][0]["type"] == u'Succeeded':
-                failed =+ 1
-                print("Failed - PipelineRun " + pr + " in namespace " + namespace)
-                runsFailed.append("[**$COMMENT_FAILURE**](" + link + ") | " + pipeline + " | " + pr + " | " + namespace)
-                continue
-              link = pipelineRunURLPrefix + "/k8s/ns/kabanero/tekton.dev~v1alpha1~PipelineRun/" + pr
-              runsIncomplete.append("[**$COMMENT_TIMEOUT**](" + link + ") | " + pipeline + " | " + pr + " | " + namespace)
-            if len(runsIncomplete) == 0:
-              break
+      #########################
+      # Status
+      #########################
+      STATUS_PENDING = 0
+      STATUS_SUCCEEDED = 1
+      STATUS_FAILED = 2
+      STATUS_TIMEDOUT = 3
+      STATUS_MISSING = 4  # pipeline resource was discovered, then became missing
+      #########################
+      RESOURCE = "resource"
+      STATUS = "status"
+      METADATA = "metadata"
+      NAMESPACE = "namespace"
+      NAME = "name"
+      CONDITIONS = "conditions"
+      TYPE = "type"
+      #########################
+      # Return the key for a Kubernetes resource
+      ########################
+      def getKey(resource):
+        name = resource[METADATA][NAME]
+        namespace = resource[METADATA][NAMESPACE]
+        return namespace + "/" + name
+      #########################
+      # Given a pipelinerun resource, return its status, one of STATUS_PENDING, STATUS_SUCCEEDED, or STATUS_FAILED
+      # Note that STATUS_TIMEOUT and STATUS_MISSING are not determinable here
+      #########################
+      def getStatus(entry):
+        if entry[STATUS][CONDITIONS][0][STATUS] == u'True' and entry[STATUS][CONDITIONS][0][TYPE] == u'Succeeded':
+          return STATUS_SUCCEEDED
+        if entry[STATUS][CONDITIONS][0][STATUS] == u'False' and entry[STATUS][CONDITIONS][0][TYPE] == u'Succeeded':
+          return STATUS_FAILED
+        return STATUS_PENDING
+      #########################
+      # Given a list of Kubernetes resources, return a map where key is "namespace/name" and the
+      # value is: {"resource": resource, "status": stat}, where 
+      #  resource is the value of the Kubernetes resource
+      #  status is one of STATUS_PENDING, SUTATUS_SUCCEEDED, STATUS_FAILED
+      #########################
+      def createResourceMap(resourceList):
+        ret = {}
+        for resource in resourceList:
+          key = getKey(resource)
+          ret[key] = {}
+          ret[key][RESOURCE] = resource
+          ret[key][STATUS] = getStatus(resource)
+        return ret
+      #########################
+      # Update existing map of pipelineruns with new data
+      #   newRuns: new map of pipeline runs 
+      #   existingRuns: existing map of pipelineruns
+      # Return number of pending runs
+      #########################
+      def updateResourceMap(newRuns, existingRuns):
+        numPending = 0
+        # Whatever is new newRuns replaces what's in existingRuns
+        for key in newRuns:
+          existingRuns[key] = newRuns[key]
+          if existingRuns[key][STATUS] == STATUS_PENDING:
+            numPending = numPending+1
+        # For anything in existingRuns not in newRuns, mark it as STATUS_MISSING
+        # This can happen if a pipelinerun is deleted while it's running
+        for key in existingRuns:
+          if not newRuns.has_key(key):
+            existingRuns[key][STATUS] = STATUS_MISSING
+        return numPending
+      ######################################
+      # Prost proessing
+      ######################################
+      def postProcess(pipelineRunURLPrefix, existingStatus):
+        failed = 0
+        missing = 0
+        timedout = 0
+        results = []
+        for key in existingStatus:
+          entry = existingStatus[key][RESOURCE]
+          pr = entry["metadata"]["name"]
+          namespace = entry["metadata"]["namespace"]
+          pipeline = entry["spec"]["pipelineRef"]["name"]
+          link = pipelineRunURLPrefix + "/k8s/ns/kabanero/tekton.dev~v1alpha1~PipelineRun/" + pr
+          if existingStatus[key][STATUS] == STATUS_MISSING:
+            # To test this we need a webhook that will kick off two Pipelines
+            # We will then delete one PipelineRun and observe it is correctly picked up as missing
+            # This is easiest done by reopening an existing PullRequest
+            # It's important to delete the PipelineRun only after the monitor task is already running because
+            # the first thing it's going to do is figure out the PipelineRuns to watch over
+            missing = missing+1
+            link = pipelineRunURLPrefix + "/k8s/ns/kabanero/tekton.dev~v1alpha1~PipelineRun"
+            results.append("[**$COMMENT_MISSING**](" + link + ") | " + pipeline + " | " + pr + " | " + namespace)
+          elif existingStatus[key][STATUS] == STATUS_SUCCEEDED:
+            results.append("[**$COMMENT_SUCCESS**](" + link + ") | " + pipeline + " | " +  pr + " | " + namespace)
+          elif existingStatus[key][STATUS] == STATUS_FAILED:
+            failed = failed+1
+            results.append("[**$COMMENT_FAILURE**](" + link + ") | " + pipeline + " | " + pr + " | " + namespace)
+          elif existingStatus[key][STATUS] == STATUS_PENDING:
+            timedout = timedout +1
+            results.append("[**$COMMENT_TIMEOUT**](" + link + ") | " + pipeline + " | " + pr + " | " + namespace)
           else:
+            print("error: pipeilne " + pr+  " has unknown status: " + existingStatus[key][STATUS])
+        return results, failed, missing, timedout
+      ############################
+      #CODE_TO_UNIT_TEST_ENDS_HERE
+      ############################
+      # Main subroutine
+      #########################
+      def processMonitorTask():
+        config.load_incluster_config()
+        api_instance = client.CustomObjectsApi(client.ApiClient(client.Configuration()))
+        gitPRcontext = "Tekton"
+        gitPRurl = ""
+        if not "$URL".startswith("http"):
+          pipelineRunURLPrefix = "http://" + "$URL"
+        else:
+          pipelineRunURLPrefix = "$URL"
+        verifySSL = not bool(distutils.util.strtobool("$SKIPSSLVERIFY"))
+        if "$GITPROVIDER" == "github":
+          statusurl = "$STATUSES_URL"
+          pendingData = {
+            "state": "pending",
+            "description": "pipelines in progress",
+            "target_url": pipelineRunURLPrefix + "/k8s/ns/kabanero/tekton.dev~v1alpha1~PipelineRun",
+            "context": "Tekton"
+          }
+          resp = requests.post(statusurl, json.dumps(pendingData), headers = {'Content-Type': 'application/json', 'Authorization': "Token $GITTOKEN"}, verify=verifySSL)
+          print(resp)
+        if "$GITPROVIDER" == "gitlab":
+          statusurl = "$GITAPIURL" + "/" + "$STATUSES_URL" + "?state=pending&name=Tekton&target_url=" + pipelineRunURLPrefix + "/k8s/ns/kabanero/tekton.dev~v1alpha1~PipelineRun"
+          resp = requests.post(statusurl, headers = {'Authorization': "Bearer $GITTOKEN"}, verify=verifySSL)
+          print(resp)
+        labelToCheck = "triggers.tekton.dev/triggers-eventid=$EVENTID"
+        failed = 0
+        i = range(180)
+        existingStatus = {}
+        for x in i:
+          time.sleep( 10 )
+          print(" BEGIN loop: " , x)
+          newResources = api_instance.list_cluster_custom_object("tekton.dev", "v1beta1", "pipelineruns", label_selector=labelToCheck)["items"]
+          newResourceStatus = createResourceMap(newResources)
+          numPending = updateResourceMap(newResourceStatus, existingStatus)
+          if len(existingStatus) > 0 and numPending == 0 :
             break
-      gitPRdescription = "All pipelines succeeded!"
-      gitPRcode = "success"
-      if failed > 0:
-        gitPRdescription = str(failed) + " pipeline(s) failed!"
-        gitPRcode = "failure"
-      if len(runsMissing) > 0:
-        gitPRdescription = "Pipeline(s) missing!"
-        gitPRcode = "failure"
-      if len(runsIncomplete) > 0:
-        print("Some PipelineRuns had not completed when the monitor reached its timeout")
-        gitPRdescription = "timed out monitoring PipelineRuns"
-        gitPRcode = "error"
-
-      results = runsPassed + runsFailed + runsIncomplete + runsMissing
-
-      if (results == []):
-        gitPRdescription = "No PipelineRuns were ever found for my PullRequest!"
-        gitPRcode = "error"
-        data = "**$COMMENT_MISSING** | N/A | No PipelineRuns were ever detected, failing the build | N/A"
-        runsMissing.append(data)
-
-        results = runsMissing
-
-      comment = ("## Tekton Status Report \n\n"
-                 "Status | Pipeline | PipelineRun | Namespace\n"
-                 ":----- | :------- | :--------------- | :--------\n"
-                 ) + "\n".join(results)
-
-      shutil.copyfile("/workspace/pull-request/pr.json","/workspace/output/pull-request/pr.json")
-      # Preserve existing comments
-      shutil.copytree("/workspace/pull-request/comments","/workspace/output/pull-request/comments")
-      handle = open("/workspace/output/pull-request/comments/newcomment.json", 'w')
-      handle.write(comment)
-      handle.close()
-      if not "$URL".startswith("http"):
-        detailsURL = "http://" + "$URL" + "/#/pipelineruns"
-      else:
-        detailsURL = "$URL" + "/#/pipelineruns"
-      print("Set details url to " + detailsURL)
-      status = json.dumps(dict(Label=gitPRcontext,state=gitPRcode,Desc=gitPRdescription,Target=detailsURL))
-      print("Setting status to " + status)
-      if not os.path.exists("/workspace/output/pull-request/status"):
-        os.makedirs("/workspace/output/pull-request/status")
-      handle = open("/workspace/output/pull-request/status/Tekton.json", 'w')
-      handle.write(status)
-      handle.close()
-      if not os.path.exists("/workspace/output/pull-request/labels"):
-        shutil.copytree("/workspace/pull-request/labels","/workspace/output/pull-request/labels")
-      shutil.copyfile("/workspace/pull-request/base.json","/workspace/output/pull-request/base.json")
-      shutil.copyfile("/workspace/pull-request/head.json","/workspace/output/pull-request/head.json")
+        # loop endeded, post processing
+        results, failed, missing, timedout = postProcess(pipelineRunURLPrefix, existingStatus)
+        gitPRdescription = "All pipelines succeeded!"
+        gitPRcode = "success"
+        if failed > 0:
+          gitPRdescription = str(failed) + " pipeline(s) failed!"
+          gitPRcode = "failure"
+        if missing > 0:
+          gitPRdescription = "Pipeline(s) missing!"
+          gitPRcode = "failure"
+        if timedout > 0:
+          print("Some PipelineRuns had not completed when the monitor reached its timeout")
+          gitPRdescription = "timed out monitoring PipelineRuns"
+          gitPRcode = "error"
+      
+        if (results == []):
+          gitPRdescription = "No PipelineRuns were ever found for my PullRequest!"
+          gitPRcode = "error"
+          data = "**$COMMENT_MISSING** | N/A | No PipelineRuns were ever detected, failing the build | N/A"
+          results.append(data)
+      
+        comment = ("## Tekton Status Report \n\n"
+                   "Status | Pipeline | PipelineRun | Namespace\n"
+                   ":----- | :------- | :--------------- | :--------\n"
+                   ) + "\n".join(results)
+      
+        shutil.copyfile("/workspace/pull-request/pr.json","/workspace/output/pull-request/pr.json")
+        # Preserve existing comments
+        shutil.copytree("/workspace/pull-request/comments","/workspace/output/pull-request/comments")
+        handle = open("/workspace/output/pull-request/comments/newcomment.json", 'w')
+        handle.write(comment)
+        handle.close()
+        if not "$URL".startswith("http"):
+          detailsURL = "http://" + "$URL" + "/#/pipelineruns"
+        else:
+          detailsURL = "$URL" + "/#/pipelineruns"
+        print("Set details url to " + detailsURL)
+        status = json.dumps(dict(Label=gitPRcontext,state=gitPRcode,Desc=gitPRdescription,Target=detailsURL))
+        print("Setting status to " + status)
+        if not os.path.exists("/workspace/output/pull-request/status"):
+          os.makedirs("/workspace/output/pull-request/status")
+        handle = open("/workspace/output/pull-request/status/Tekton.json", 'w')
+        handle.write(status)
+        handle.close()
+        if not os.path.exists("/workspace/output/pull-request/labels"):
+          shutil.copytree("/workspace/pull-request/labels","/workspace/output/pull-request/labels")
+        shutil.copyfile("/workspace/pull-request/base.json","/workspace/output/pull-request/base.json")
+        shutil.copyfile("/workspace/pull-request/head.json","/workspace/output/pull-request/head.json")
+      ############################################
+      # end main subroutine
+      ############################################
+      processMonitorTask()
       EOF
