@@ -61,7 +61,7 @@ spec:
     # Up to here
   steps:
   - name: check
-    image: mchengdocker/pipelines-utils:latest
+    image: icp4apps/pipelines-utils:latest
     env:
       - name: EVENTID
         valueFrom:
