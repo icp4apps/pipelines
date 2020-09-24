@@ -26,6 +26,7 @@ pip2 install --no-cache-dir -U kubernetes==${KUBE_CLIENT_VERSION}
 pip3 install --no-cache-dir -U passlib
 pip3 install --no-cache-dir -U requests
 pip3 install --no-cache-dir -U kubernetes==${KUBE_CLIENT_VERSION}
+pip3 install --no-cache-dir -U yq
 
 cd ..
 

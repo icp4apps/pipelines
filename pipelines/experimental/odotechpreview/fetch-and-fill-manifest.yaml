@@ -16,25 +16,28 @@ spec:
       type: string
   steps:
     - name: fetch-manifest
-      image: mikefarah/yq
+      image: icp4apps/pipelines-utils:latest
       script: |
         MANIFEST_PATH="$(workspaces.source.path)/$(params.manifestSubPath)"
         DEVFILE="$(workspaces.source.path)/$(params.devfilePath)"
 
-        LOOKUP='metadata[alpha.deployment-manifest]'
-        MANIFEST_URL=$(yq r $DEVFILE $LOOKUP)
+        LOOKUP='.metadata."alpha.deployment-manifest"'
+        MANIFEST_URL=$(yq -r $LOOKUP $DEVFILE)
 
         # Fetch deployment manifest
         wget -O $MANIFEST_PATH $MANIFEST_URL
 
         # Replace image in deployment manifest
-        yq w -i $MANIFEST_PATH 'spec.applicationImage' "$(params.newImage)"
+        cat $MANIFEST_PATH
+        sed -i "s|{{.CONTAINER_IMAGE}}|$(params.newImage)|" $MANIFEST_PATH
 
-        # Replace project name based on devfile.yaml
-        PROJECT_NAME=$(yq r $DEVFILE 'projects[0].name') 
-        yq w -i $MANIFEST_PATH 'metadata.name' $PROJECT_NAME
+        # Replace component name based on devfile.yaml
+        COMPONENT_NAME=$(yq -r '.components[0].container.name' $DEVFILE)
+        sed -i "s/{{.COMPONENT_NAME}}/${COMPONENT_NAME}/" $MANIFEST_PATH
 
         # Replace port used by application, based on devfile.yaml
-        LOOKUP='components[0].container.endpoints[0].targetPort'
-        PORT=$(yq r $DEVFILE $LOOKUP)
-        yq w -i $MANIFEST_PATH 'spec.service.port' $PORT
+        LOOKUP='.components[0].container.endpoints[0].targetPort'
+        PORT=$(yq -r $LOOKUP $DEVFILE)
+        sed -i "s/{{.PORT}}/${PORT}/" $MANIFEST_PATH
+
+        cat $MANIFEST_PATH
