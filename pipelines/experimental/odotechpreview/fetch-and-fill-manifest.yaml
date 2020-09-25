@@ -14,6 +14,8 @@ spec:
       default: manifest.yaml
     - name: newImage
       type: string
+    - name: component
+      type: string
   steps:
     - name: fetch-manifest
       image: icp4apps/pipelines-utils:latest
@@ -28,20 +30,30 @@ spec:
         LOOKUP='.metadata."alpha.deployment-manifest"'
         MANIFEST_URL=$(yq -r $LOOKUP $DEVFILE)
         wget -O $MANIFEST_PATH $MANIFEST_URL
+        echo "deployment manifest before:"
         cat ${MANIFEST_PATH}
 
-        # Replace image in deployment manifest
-        sed -i "s|{{.CONTAINER_IMAGE}}|$(params.newImage)|" $MANIFEST_PATH
-
+        # generate values.yaml for go template substitution
+        PARAMS_FILE="values.yaml"
+        echo "CONTAINER_IMAGE: \"$(params.newImage)\"" > ${PARAMS_FILE}
         yq -r . ${LOCAL_DEVFILE}
-
-        # Replace component name, based on local devfile.yaml
-        COMPONENT_NAME=$(yq -r '.components[0].container.name' $LOCAL_DEVFILE)
-        sed -i "s/{{.COMPONENT_NAME}}/${COMPONENT_NAME}/" $MANIFEST_PATH
-
-        # Replace port used by application, based on devfile.yaml
+        # COMPONENT_NAME=$(yq -r '.components[0].container.name' $LOCAL_DEVFILE)
+        COMPONENT_NAME=$(params.component)
+        echo "COMPONENT_NAME: \"${COMPONENT_NAME}\"" >> ${PARAMS_FILE}
         LOOKUP='.components[0].container.endpoints[0].targetPort'
         PORT=$(yq -r $LOOKUP $LOCAL_DEVFILE)
-        sed -i "s/{{.PORT}}/${PORT}/" $MANIFEST_PATH
+        echo "PORT: ${PORT}" >> ${PARAMS_FILE}
+        echo "Params file ${PARAMS_FILE}:"
+        cat ${PARAMS_FILE}
 
+        # Perform go template substituion
+        OUTPUT_FILE="output.yaml"
+        cat << EOF | python3
+        import go_template
+        go_template.render_template("$MANIFEST_PATH","$PARAMS_FILE","$OUTPUT_FILE")
+        EOF
+
+        # Copy result back
+        cp ${OUTPUT_FILE} ${MANIFEST_PATH}
+        echo "deployment manifest after:"
         cat ${MANIFEST_PATH}
