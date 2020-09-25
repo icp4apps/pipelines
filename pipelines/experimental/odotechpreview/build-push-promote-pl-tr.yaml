@@ -139,6 +139,8 @@ spec:
           value: $(params.webhooks-tekton-docker-registry)/$(params.webhooks-tekton-git-repo)
         - name: devfile
           value: $(params.webhooks-tekton-stack-devfile)
+        - name: component
+          value: $(params.webhooks-tekton-git-repo)
         - name: webhooks-tekton-local-deploy
           value: $(params.webhooks-tekton-local-deploy)
       workspaces:

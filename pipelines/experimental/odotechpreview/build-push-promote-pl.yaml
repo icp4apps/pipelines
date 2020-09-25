@@ -14,6 +14,8 @@ spec:
       type: string
     - name: devfile
       type: string
+    - name: component
+      type: string
   workspaces:
     - name: shared-workspace
   tasks:
@@ -87,6 +89,8 @@ spec:
       params:
         - name: newImage
           value: '$(params.image):$(tasks.fetch-repository.results.commit)'
+        - name: component
+          value: '$(params.component)'
     - name: deploy-app
       taskRef:
         name: deploy-@Digest@
