@@ -8,6 +8,8 @@ spec:
     - name: source
       mountPath: /source
   params:
+    - name: devfileUrl
+      description: Stack url for devfile
     - name: devfilePath
       default: repo/devfile.yaml
     - name: dockerfilePath
@@ -16,11 +18,16 @@ spec:
     - name: fetch-dockerfile
       image: icp4apps/pipelines-utils:latest
       script: |
-        DOCKERFILE_PATH="$(workspaces.source.path)/$(params.dockerfilePath)" 
-        DEVFILE="$(workspaces.source.path)/$(params.devfilePath)"
+        DEVFILE_URL="$(params.devfileUrl)"
+        DOCKERFILE_PATH="$(workspaces.source.path)/$(params.dockerfilePath)"
+        DEVFILE="$(workspaces.source.path)/devfile.yaml"
 
-        LOOKUP='.metadata."alpha.dockerfile"'
+        wget -O $DEVFILE $DEVFILE_URL
+        yq -r . $DEVFILE
+
+        LOOKUP='.metadata."alpha.build-dockerfile"'
         DOCKERFILE_URL=$(yq -r $LOOKUP $DEVFILE)
 
         # Fetch dockerfile
         wget -O $DOCKERFILE_PATH $DOCKERFILE_URL
+        cat $DOCKERFILE_PATH
