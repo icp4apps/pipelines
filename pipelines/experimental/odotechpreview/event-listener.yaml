@@ -46,6 +46,7 @@ spec:
     template:
      apiversion: v1alpha1
      name: monitor-task-@Digest@-template
+     ref: monitor-task-@Digest@-template
     name: kabanero-monitor-task-event
     interceptors:
     - cel:
