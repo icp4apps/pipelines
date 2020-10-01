@@ -16,11 +16,6 @@ odo_pipelines_dir=$base_dir/pipelines/experimental/odotechpreview
 assets_dir=$base_dir/ci/assets
 mkdir -p $assets_dir
 
-#imagename in every pipeline task file that will be replaces with correct digest value.
-image_original_string=icp4apps/pipelines-utils:latest
-#default image name if not provided for the utils container image
-DEFAULT_IMAGE_NAME=pipelines-utils
-
 package() {
     local pipelines_dir=$1
     local prefix=$2
@@ -56,27 +51,18 @@ package() {
     echo "*************************************************"
 }
 
-OPTIONAL_ARGS=1
-if [ $# -eq $OPTIONAL_ARGS ]
-then
-    pipelines_dir=$base_dir/pipelines/$1
-    if [ ! -d $pipelines_dir ]
-    then
-        echo "$pipelines_dir not found"
-        exit 1
-    fi;
-    package $pipelines_dir `basename $pipelines_dir`
-    exit 0
-fi;
-
 login_container_registry() {
-    local container_registry_login_option=$1
-    echo "[INFO] inside login_container_registry method Logging in the container registry using $container_registry_login_option "
-    echo "$IMAGE_REGISTRY_PASSWORD" | $container_registry_login_option login -u $IMAGE_REGISTRY_USERNAME --password-stdin $IMAGE_REGISTRY
+   local container_registry_login_option="docker"
+   if [[ (! -z $IMAGE_REGISTRY) && (! -z "$IMAGE_REGISTRY_USERNAME") && (! -z "$IMAGE_REGISTRY_PASSWORD") ]]; then
+      if [[ ( ! -z "$USE_BUILDAH" ) && ( "$USE_BUILDAH" == true ) ]]; then
+         container_registry_login_option="buildah"
+      fi
+      echo "[INFO] inside login_container_registry method Logging in the container registry using $container_registry_login_option "
+      echo "$IMAGE_REGISTRY_PASSWORD" | $container_registry_login_option login -u $IMAGE_REGISTRY_USERNAME --password-stdin $IMAGE_REGISTRY
+   fi
 }
-fetch_image_digest() {
-   local destination_image_url=$1
 
+fetch_image_digest() {
    if [[ ( ! -z "$USE_BUILDAH" ) && ( "$USE_BUILDAH" == false ) ]]; then
       echo "[INFO] Fetching the image digest value for image $destination_image_url using docker inspect"
       docker pull $destination_image_url
@@ -92,8 +78,10 @@ fetch_image_digest() {
          exit 1
       fi
       #This is to remove double quotes at the beginning and the end of the digest value found by above command
-      image_digest_value=$(sed -e 's/^"//' -e 's/"$//' <<<"$image_digest_value_withquote");
-      echo "[INFO] using docker inspect image_digest_value=$image_digest_value"
+      fetched_image_digest_value=$(sed -e 's/^"//' -e 's/"$//' <<<"$image_digest_value_withquote");
+
+      echo "[INFO] using docker inspect image_digest_value=$fetched_image_digest_value"
+
    elif [[ ( ! -z "$USE_BUILDAH" ) && ( "$USE_BUILDAH" == true ) ]]; then
       echo "[INFO] Fetching the image digest value for image $destination_image_url using skopeo inspect"
       image_digest_value_withquote=$( skopeo inspect docker://$destination_image_url | jq '.Digest' )
@@ -103,16 +91,30 @@ fetch_image_digest() {
          exit 1
       fi
       image_digest_value=$(sed -e 's/^"//' -e 's/"$//' <<<"$image_digest_value_withquote");
-      image_digest_value=$IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$UTILS_IMAGE_NAME@$image_digest_value
-      echo "[INFO] using skopeo image_digest_value=$image_digest_value"
+      fetched_image_digest_value=$IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$UTILS_IMAGE_NAME@$image_digest_value
+
+      echo "[INFO] using skopeo image_digest_value=$fetched_image_digest_value"
+
    fi
-   
-   #calling method to replace the image digest value in all the yaml files.
-   replace_image_url $image_digest_value
-   
 }
-replace_image_url() {
-   local image_digest_value=$1
+
+set_image_replacement_string() {
+   #if destination_image_url ends with latest don't pull image digest
+   if [[ "$destination_image_url" != *:latest ]]; then
+      fetch_image_digest
+      image_replacement_string=$fetched_image_digest_value
+   else
+      image_replacement_string=$IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$UTILS_IMAGE_NAME:latest
+   fi
+}
+
+update_utils_image_urls() {
+   #imagename in every pipeline task file that will be replaced with correct digest value.
+   image_original_string="icp4apps/pipelines-utils:latest"
+
+   set_image_replacement_string
+   local image_digest_value=$image_replacement_string
+
    echo "[INFO] Replacing the utils container image string from 'image : $image_original_string' with 'image : $image_digest_value' in all the pipeline task yaml files";
       
    echo "[INFO] find and sed replace image_original_string=$image_original_string to  image_digest_value=$image_digest_value"
@@ -131,127 +133,119 @@ replace_image_url() {
       exit 1
    fi
 }
-   
-#setting the Utils image name as Default image name in case it is empty or not provided from env.sh
-if [ -z "$UTILS_IMAGE_NAME" ]; then
-   UTILS_IMAGE_NAME=$DEFAULT_IMAGE_NAME
-fi
-#setting up the utils image tagname as TRAVIS_TAG in case it is not empty, which is during Travis automation step.
-# In other cases UTILS_IMAGE_TAG will be exported from env.sh file.
-if [[ ( "$UTILS_IMAGE_REGISTRY_PUBLISH" == true ) && (! -z "$TRAVIS_TAG") ]]; then
-   echo "Travis_tag variable is not empty TRAVIS_TAG=$TRAVIS_TAG"
-   UTILS_IMAGE_TAG=$TRAVIS_TAG
-fi
-#setting default option to build image as docker. If you need to run the script with Buildah option, update USE_BUILDAH=true in env.sh
-if [[ ( -z "$USE_BUILDAH" ) ]]; then
-   USE_BUILDAH = false
-fi
-#preparing destination image url based on given inputs
-if [[ (! -z "$IMAGE_REGISTRY") && ( ! -z "$IMAGE_REGISTRY_ORG" ) && ( ! -z "$UTILS_IMAGE_NAME" ) && ( ! -z "$UTILS_IMAGE_TAG" ) ]]; then
-   echo "[INFO] Preparing destination utils image url using below variables as per given by the user"
-   echo "[INFO] IMAGE_REGISTRY=$IMAGE_REGISTRY"
-   echo "[INFO] IMAGE_REGISTRY_ORG=$IMAGE_REGISTRY_ORG"
-   echo "[INFO] UTILS_IMAGE_NAME=$UTILS_IMAGE_NAME"
-   echo "[INFO] UTILS_IMAGE_TAG=$UTILS_IMAGE_TAG"   
-   destination_image_url=$IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$UTILS_IMAGE_NAME:$UTILS_IMAGE_TAG
-   echo "[INFO] Concatenated destination utils image urls are as below"
-   echo "[INFO] destination_image_url=$destination_image_url" 
-   destination_image_url_with_latest_tagname=$IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$UTILS_IMAGE_NAME:latest
-   echo "[INFO] destination_image_url_with_latest_tagname=$destination_image_url_with_latest_tagname" 
-else
-   echo "[ERROR] Image url cannot be formed ,one or more of the environment variables IMAGE_REGISTRY,IMAGE_REGISTRY_USERNAME, UTILS_IMAGE_NAME or UTILS_IMAGE_TAG are empty, please provide correct envrionment variables for image registry and image details for building the image and try again."
-   echo "[ERROR] IMAGE_REGISTRY=$IMAGE_REGISTRY"
-   echo "[ERROR] IMAGE_REGISTRY_ORG=$IMAGE_REGISTRY_ORG"
-   echo "[ERROR] UTILS_IMAGE_NAME=$UTILS_IMAGE_NAME"
-   echo "[ERROR] UTILS_IMAGE_TAG=$UTILS_IMAGE_TAG"
-   sleep 1
-   exit 1
-fi
-if [[ ( "$UTILS_IMAGE_REGISTRY_PUBLISH" == true ) ]]; then
-   echo "[INFO] Publishing a new utils container image" 
-   
-   #Login to the registry if the username and password are present
-   if [[ (! -z $IMAGE_REGISTRY) && (! -z "$IMAGE_REGISTRY_USERNAME") && (! -z "$IMAGE_REGISTRY_PASSWORD") ]]; then
-      if [[ ( ! -z "$USE_BUILDAH" ) && ( "$USE_BUILDAH" == true ) ]]; then
-         echo "[INFO] Logging in the container registry using buildah"
-         login_container_registry "buildah"
-      else
-         echo "[INFO] Logging in to the container registry using docker"
-         login_container_registry "docker"
-      fi       
-   fi
-   # navigating to the folder where the utils container docker file is present
-   cd ./pipelines/docker/pipelines-utils/              
-   
-   if [[ ( ! -z "$USE_BUILDAH" ) && ( "$USE_BUILDAH" == true ) ]]; then
-   
-      echo "[INFO] Building the utils container image using USE_BUILDAH=$USE_BUILDAH"
-              
-      buildah bud -t $destination_image_url -t $destination_image_url_with_latest_tagname .
-      if [ $? == 0 ]; then
-         echo "[INFO] The buildah container image $destination_image_url was build successfully"
-                
-         # Running actual buildah push command to push the image  to the registry using buildah.
-         echo "[INFO] Pushing the image to $destination_image_url "
-         buildah push $destination_image_url docker://$destination_image_url
-         if [ $? == 0 ]; then
-            echo "[INFO] The buildah container image $destination_image_url was successfully pushed"
-            buildah push $destination_image_url_with_latest_tagname docker://$destination_image_url_with_latest_tagname     
-         else
-            echo "[ERROR] The buildah container image push failed for this image $destination_image_url, please check the logs"
-            sleep 1
-            exit 1
-         fi    
-      else
-         echo "[ERROR] The buildah container image $destination_image_url build failed, please check the logs."
-         sleep 1
-         exit 1
-      fi
-        
-      #navigating to the base folder     
-      cd ../../../
-        
-      #calling method to fetch image digest value
-      fetch_image_digest $destination_image_url          
+
+confirm_inputs() {
+   #preparing destination image url based on given inputs
+   if [[ (! -z "$IMAGE_REGISTRY") && ( ! -z "$IMAGE_REGISTRY_ORG" ) && ( ! -z "$UTILS_IMAGE_NAME" ) && ( ! -z "$UTILS_IMAGE_TAG" ) ]]; then
+      echo "[INFO] Preparing destination utils image url using below variables as per given by the user"
+      echo "[INFO] IMAGE_REGISTRY=$IMAGE_REGISTRY"
+      echo "[INFO] IMAGE_REGISTRY_ORG=$IMAGE_REGISTRY_ORG"
+      echo "[INFO] UTILS_IMAGE_NAME=$UTILS_IMAGE_NAME"
+      echo "[INFO] UTILS_IMAGE_TAG=$UTILS_IMAGE_TAG"
+      destination_image_url=$IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$UTILS_IMAGE_NAME:$UTILS_IMAGE_TAG
+      echo "[INFO] Concatenated destination utils image urls are as below"
+      echo "[INFO] destination_image_url=$destination_image_url"
+      destination_image_url_with_latest_tagname=$IMAGE_REGISTRY/$IMAGE_REGISTRY_ORG/$UTILS_IMAGE_NAME:latest
+      echo "[INFO] destination_image_url_with_latest_tagname=$destination_image_url_with_latest_tagname"
    else
-      echo "[INFO] Building the utils container image using USE_BUILDAH = $USE_BUILDAH"
-      echo "[INFO] Running docker build for image url : $destination_image_url"
-            
-      # Running actual docker build command to build the image using docker.      
-      docker build -t $destination_image_url -t $destination_image_url_with_latest_tagname .       
-      if [ $? == 0 ]; then
-         echo "[INFO] Docker image $destination_image_url was build successfully" 
-         echo "[INFO] Pushing the image $destination_image_url "
-               
-         # Running actual docker push command to push the image  to the registry using docker.
-         docker push $destination_image_url
+      echo "[ERROR] Image url cannot be formed ,one or more of the environment variables IMAGE_REGISTRY,IMAGE_REGISTRY_USERNAME, UTILS_IMAGE_NAME or UTILS_IMAGE_TAG are empty, please provide correct envrionment variables for image registry and image details for building the image and try again."
+      echo "[ERROR] IMAGE_REGISTRY=$IMAGE_REGISTRY"
+      echo "[ERROR] IMAGE_REGISTRY_ORG=$IMAGE_REGISTRY_ORG"
+      echo "[ERROR] UTILS_IMAGE_NAME=$UTILS_IMAGE_NAME"
+      echo "[ERROR] UTILS_IMAGE_TAG=$UTILS_IMAGE_TAG"
+      sleep 1
+      exit 1
+   fi
+}
+
+publish_utils_image() {
+   if [[ ( "$UTILS_IMAGE_REGISTRY_PUBLISH" == true ) ]]; then
+      echo "[INFO] Publishing a new utils container image"
+
+      confirm_inputs
+
+      #Login to the registry if the username and password are present
+      login_container_registry
+
+      # navigating to the folder where the utils container docker file is present
+      cd $base_dir/pipelines/docker/pipelines-utils/
+
+      echo "[INFO] Building the utils container image using USE_BUILDAH=$USE_BUILDAH"
+      if [[ ( ! -z "$USE_BUILDAH" ) && ( "$USE_BUILDAH" == true ) ]]; then
+         buildah bud -t $destination_image_url -t $destination_image_url_with_latest_tagname .
          if [ $? == 0 ]; then
-            echo "[INFO] The docker image was successfully pushed to $destination_image_url"
-            docker push $destination_image_url_with_latest_tagname    
+            echo "[INFO] The buildah container image $destination_image_url was build successfully"
+            
+            # Running actual buildah push command to push the image  to the registry using buildah.
+            echo "[INFO] Pushing the image to $destination_image_url "
+            buildah push $destination_image_url docker://$destination_image_url
+            if [ $? == 0 ]; then
+               echo "[INFO] The buildah container image $destination_image_url was successfully pushed"
+               buildah push $destination_image_url_with_latest_tagname docker://$destination_image_url_with_latest_tagname
+            else
+               echo "[ERROR] The buildah container image push failed for this image $destination_image_url, please check the logs"
+               sleep 1
+               exit 1
+            fi
          else
-            echo "[ERROR] The docker push failed for this image $destination_image_url, please check the logs"
+            echo "[ERROR] The buildah container image $destination_image_url build failed, please check the logs."
             sleep 1
             exit 1
-         fi    
+         fi
       else
-         echo "[ERROR] The docker image $destination_image_url build failed, please check the logs."
-         sleep 1
-         exit 1
+         echo "[INFO] Running docker build for image url : $destination_image_url"
+               
+         # Running actual docker build command to build the image using docker.
+         docker build -t $destination_image_url -t $destination_image_url_with_latest_tagname .
+         if [ $? == 0 ]; then
+            echo "[INFO] Docker image $destination_image_url was build successfully"
+
+            # Running actual docker push command to push the image  to the registry using docker.
+            echo "[INFO] Pushing the image $destination_image_url "
+            docker push $destination_image_url
+            if [ $? == 0 ]; then
+               echo "[INFO] The docker image was successfully pushed to $destination_image_url"
+               docker push $destination_image_url_with_latest_tagname
+            else
+               echo "[ERROR] The docker push failed for this image $destination_image_url, please check the logs"
+               sleep 1
+               exit 1
+            fi
+         else
+            echo "[ERROR] The docker image $destination_image_url build failed, please check the logs."
+            sleep 1
+            exit 1
+         fi
       fi
-      
-      #navigating to the base folder      
-      cd ../../../
-      
-      #calling method to fetch image digest value
-      fetch_image_digest $destination_image_url
-   fi  
-else
-   echo "[INFO] We are not publishing new utils container image since UTILS_IMAGE_REGISTRY_PUBLISH is not set to true "
-   #calling method to fetch image digest value
-   fetch_image_digest $destination_image_url
-fi
 
+      #navigating to the base folder
+      cd $base_dir
 
+      #calling method to update image references
+      update_utils_image_urls
+   else
+      echo "[INFO] We are not publishing new utils container image since UTILS_IMAGE_REGISTRY_PUBLISH is not set to true "
+   fi
+}
+
+OPTIONAL_ARGS=1
+if [ $# -eq $OPTIONAL_ARGS ]
+then
+    pipelines_dir=$base_dir/pipelines/$1
+    if [ ! -d $pipelines_dir ]
+    then
+        echo "$pipelines_dir not found"
+        exit 1
+    fi;
+    if [[ "$1" == "docker/pipelines-utils" ]]; then
+      publish_utils_image
+    else
+      package $pipelines_dir `basename $pipelines_dir`
+    fi
+    exit 0
+fi;
+
+publish_utils_image
 package $eventing_pipelines_dir "events"
 package $odo_pipelines_dir "odotechpreview"
 

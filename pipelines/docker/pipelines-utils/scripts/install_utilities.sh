@@ -21,11 +21,15 @@ wait
 
 pip2 install --no-cache-dir -U passlib
 pip2 install --no-cache-dir -U requests
-pip2 install --no-cache-dir -U kubernetes==${KUBE_CLIENT_VERSION}
+# pip2 install --no-cache-dir -U kubernetes==${KUBE_CLIENT_VERSION}
+pip2 install --no-cache-dir -U kubernetes
 
 pip3 install --no-cache-dir -U passlib
 pip3 install --no-cache-dir -U requests
-pip3 install --no-cache-dir -U kubernetes==${KUBE_CLIENT_VERSION}
+# pip3 install --no-cache-dir -U kubernetes==${KUBE_CLIENT_VERSION}
+pip3 install --no-cache-dir -U kubernetes
+pip3 install --no-cache-dir -U go_template
+pip3 install --no-cache-dir -U yq
 
 cd ..
 

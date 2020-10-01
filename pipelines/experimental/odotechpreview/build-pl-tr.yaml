@@ -29,6 +29,8 @@ spec:
     value: $(body.webhooks-tekton-service-account)
   - name: webhooks-tekton-docker-registry
     value: $(body.webhooks-tekton-docker-registry)
+  - name: webhooks-tekton-stack-devfile
+    value: $(body.webhooks-tekton-stack-devfile)
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
@@ -60,6 +62,8 @@ spec:
     value: $(body.webhooks-tekton-service-account)
   - name: webhooks-tekton-docker-registry
     value: $(body.webhooks-tekton-docker-registry)
+  - name: webhooks-tekton-stack-devfile
+    value: $(body.webhooks-tekton-stack-devfile)
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
@@ -85,6 +89,8 @@ spec:
     description: The Git event type
   - name: webhooks-tekton-docker-registry
     description: The image registry
+  - name: webhooks-tekton-stack-devfile
+    description: The authoritative url for devfile
   - name: docker-imagename
     description: The docker image name
   - name: docker-imagetag
@@ -113,6 +119,8 @@ spec:
           value: $(params.gitrepositoryurl)
         - name: image
           value: $(params.webhooks-tekton-docker-registry)/$(params.webhooks-tekton-git-repo)
+        - name: devfile
+          value: $(params.webhooks-tekton-stack-devfile)
       workspaces:
         - name: shared-workspace
           volumeClaimTemplate:

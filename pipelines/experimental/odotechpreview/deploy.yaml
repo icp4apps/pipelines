@@ -12,7 +12,7 @@ spec:
       default: manifest.yaml
   steps:
     - name: deploy
-      image: lachlanevenson/k8s-kubectl
+      image: icp4apps/pipelines-utils:latest
       script: |
         cat "$(workspaces.source.path)/$(params.manifestSubPath)"
         kubectl apply -f "$(workspaces.source.path)/$(params.manifestSubPath)"

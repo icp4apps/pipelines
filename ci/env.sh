@@ -34,8 +34,8 @@ fi
 # export IMAGE_REGISTRY_PASSWORD
 
 # Utils container image details
-export UTILS_IMAGE_NAME=pipelines-utils
-#export UTILS_IMAGE_TAG=0.15.0-alpha.4
+# export UTILS_IMAGE_NAME=pipelines-utils
+# export UTILS_IMAGE_TAG=latest
 
 # Registry Organization for images. In case of dockerhub this would be dockerhub-id
 # export IMAGE_REGISTRY_ORG=icp4apps
@@ -145,11 +145,6 @@ then
     export UTILS_IMAGE_NAME=pipelines-utils
 fi
 
-if [ -z "$UTILS_IMAGE_TAG" ]
-then
-    export UTILS_IMAGE_TAG=latest
-fi
-
 if [ -z "$INDEX_VERSION" ]
 then
     export INDEX_VERSION=SNAPSHOT
@@ -168,6 +163,17 @@ fi
 if [ -z "$UTILS_IMAGE_REGISTRY_PUBLISH" ]
 then
     export UTILS_IMAGE_REGISTRY_PUBLISH=false
+fi
+
+
+#setting up the utils image tagname as TRAVIS_TAG in case it is not empty, which is during Travis automation step.
+# In other cases UTILS_IMAGE_TAG will be exported from env.sh file.
+if [[ ( "$UTILS_IMAGE_REGISTRY_PUBLISH" == true ) && (! -z "$TRAVIS_TAG") ]]; then
+   echo "TRAVIS_TAG variable is not empty, UTILS_IMAGE_TAG=$TRAVIS_TAG"
+   UTILS_IMAGE_TAG=$TRAVIS_TAG #e.g. #export UTILS_IMAGE_TAG=0.15.0-alpha.4
+elif [ -z "$UTILS_IMAGE_TAG" ]
+then
+    export UTILS_IMAGE_TAG=latest
 fi
 
 image_build() {

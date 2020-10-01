@@ -12,12 +12,17 @@ spec:
       type: string
     - name: image
       type: string
+    - name: devfile
+      type: string
+    - name: component
+      type: string
   workspaces:
     - name: shared-workspace
   tasks:
     - name: fetch-repository
       taskRef:
-        name: git-clone-@Digest@
+        kind: ClusterTask
+        name: git-clone
       workspaces:
         - name: output
           workspace: shared-workspace
@@ -34,6 +39,9 @@ spec:
       workspaces:
         - name: source
           workspace: shared-workspace
+      params:
+        - name: devfileUrl
+          value: '$(params.devfile)'
     - name: build-and-push
       taskRef:
         name: buildah-@Digest@
@@ -82,6 +90,8 @@ spec:
       params:
         - name: newImage
           value: '$(params.image):$(tasks.fetch-repository.results.commit)'
+        - name: component
+          value: '$(params.component)'
     - name: deploy-app
       taskRef:
         name: deploy-@Digest@

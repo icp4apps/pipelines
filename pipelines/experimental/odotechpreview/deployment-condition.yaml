@@ -16,7 +16,7 @@ spec:
     default: ""
   check:
     name: deployment-condition
-    image: kabanero/kabanero-utils:latest
+    image: icp4apps/pipelines-utils:latest
     command: ["/bin/sh"]
     args:
       - -ce
