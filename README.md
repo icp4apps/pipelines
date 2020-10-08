@@ -92,7 +92,7 @@ Upon receiving an incoming webhook, the events mediator performs the following g
 - Fetches the devfile in the application's repository to get the devfile's name and version. For example,
   ```
   schemaVersion: 2.0.0
-metadata:
+  metadata:
   name: nodejs
   version: 1.0.0
   ```
