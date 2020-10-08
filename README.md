@@ -18,19 +18,6 @@ Starting with github repositories containing odo projects, odo tech preview enab
 
 For more information about developer experience using odo, see "Link to odo developer experience in KC".
 
-## Appsody vs Odo only mode
-
-After installing Cloud Pak for Applications, you are running in Appsody mode. In this mode, both Appsody and odo stacks may co-exist.  You may optionally run in odo only mode, which only allows odo stacks to be active. Appsody stacks are automatically disabled in this mode. To enable odo only mode, use the following kabanero resource 
-
-```
-apiVersion: kabanero.io/v1alpha2
-kind: Kabanero
-metadata:
-  name: kabanero
-  namespace: kabanero
-spec:
-  version: "0.20.0"
-```
 
 ## Activating Odo Stacks
 
@@ -121,6 +108,20 @@ Note that:
 ## Webhook Setup
 
 The same webhook set up to trigger Appsody pipelines also triggers odo tech preview pipelines. See "link to event based webhook setup in KC". If you have already configured an organizational level webhook on Github, it will also trigger odo tech preview pipelines automatically without change.
+
+## Appsody vs Odo only mode
+
+After installing Cloud Pak for Applications, you are in Appsody mode. In this mode, both Appsody and odo stacks may co-exist.  You may optionally run in odo only mode, which only allows odo stacks to be active. Appsody stacks are automatically disabled in this mode. To enable the optional odo only mode, use the following kabanero resource 
+
+```
+apiVersion: kabanero.io/v1alpha2
+kind: Kabanero
+metadata:
+  name: kabanero
+  namespace: kabanero
+spec:
+  version: "0.20.0"
+```
 
 ## Pipeline Details
 
