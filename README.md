@@ -2,6 +2,7 @@
 
 - [Pipelines](#Pipelines)
 - [Odo Tech Preview](#Odo-Tech-Preview)
+- [Openshift Pipelines Operator v1.1](#Openshift-Pipelines-Operator-v1.1)
 
 # Pipelines
 
@@ -126,3 +127,38 @@ spec:
 ## Pipeline Details
 
 TBD: details of Pull Request and Push pipelines.
+
+# Openshift Pipelines Operator v1.1
+
+Cloudpak for Applications V4.3 installs Openshift Pipelines Operator V1.1, which uses Tekton Pipelines 0.14.3. 
+For a list of breaking changes, search for "Backwards incompatible changes" for each release at https://github.com/tektoncd/pipeline/releases. For pipelines released with Cloudpak for Applications V4.2, the following changes were made for V4.3:
+
+- For EventListener:
+  - Before:
+     ```
+         - bindings:
+          - apiversion: v1alpha1
+                name: <name>
+     ```
+  
+  - After (works only in openshift pipelines operator v1.1 or later)
+     ```
+          -bindings:
+             - apiversion: v1alpha1
+               name: <name>
+               ref: <name>
+      ```
+- For TriggerTemplate
+  - before:
+     ```
+         params:
+             - name: <name>
+               description: <description>
+               type: <type>
+     ```
+  - After: works in both openshift pipelines operator v1.0 and v1.1:
+     ```
+          params:
+             - name: <name>
+               description: <description>
+     ```
