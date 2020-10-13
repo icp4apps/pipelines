@@ -51,7 +51,7 @@ followed by:
 oc apply -f nodejs-odo-stack.yaml
 ```
 
-To activate the java-openliberty stack, create a file `openlibertay-odo-stack.yaml` with the followed contents:
+To activate the java-openliberty stack, create a file `openliberty-odo-stack.yaml` with the followed contents:
 
 ```
 apiVersion: kabanero.io/v1alpha2
