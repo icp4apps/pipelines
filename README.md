@@ -87,7 +87,7 @@ Note that:
 ## Stack governance
 
 Stack governance enables the enterprise architect to govern which stacks are active. 
-Pipelines are not triggered unless the devfile in an application's repository passses the governance rules.
+Pipelines are not triggered unless the devfile in an application's repository passes the governance rules.
 Upon receiving an incoming webhook, the events mediator performs the following governance check:
 
 - Fetches the devfile in the application's repository to get the devfile's name and version. For example,
