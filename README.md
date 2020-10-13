@@ -104,7 +104,7 @@ Note that:
 
 - The devfile pointed by the active stack may or may not be the same devfile stored in the application's repository.
 - The devfile pointed by the active stack is always the version that the enterprise architect designated to be used for build and deploy.
-- If the name or version in the devfile is modified in the application's repository, the application won't be built unless it matches another activte stack.
+- If the name or version in the devfile is modified in the application's repository, the application won't be built unless it matches another activated stack.
 
 ## Webhook Setup
 
