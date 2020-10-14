@@ -2,7 +2,7 @@
 
 - [Pipelines](#Pipelines)
 - [Odo Tech Preview](#Odo-Tech-Preview)
-- [Openshift Pipelines Operator v1.1](#Openshift-Pipelines-Operator-v1.1)
+- [Openshift Pipelines Operator v1.1](#Openshift-Pipelines-Operator-v11)
 
 # Pipelines
 
@@ -13,7 +13,7 @@ To learn more about the tasks and pipelines and how to run the pipelines, please
 
 # Odo Tech Preview
 
-Starting with github repositories containing odo projects, odo tech preview enables you to build and deploy odo projects using Openshift Pipelines. Currently, only the following odo devfiles are enabled:
+Starting with github repositories containing odo projects, odo tech preview enables you to build and deploy odo devfile 2.0 projects using Openshift Pipelines. Currently, only the following odo devfiles are enabled:
 - nodejs
 - java-openliberty
 
@@ -126,8 +126,12 @@ spec:
 
 ## Pipeline Details
 
-TBD: details of Pull Request and Push pipelines.
+Two pipelines are provided as part of the tech preview. Their functions are similar to the eventing pipelines for Appsody projects, but are desgiend for devfile projects:
 
+- The pull request pipeline, with name `build-pl-<digest>`, performs a test build from a pull request to master branch.
+- The push and deploy pipeline, with name `build-push-promote-pl-<digest>`, performs a build, pushes the resulting image to an image registry, and optionally deployes the resulting image.
+
+<a name="Openshift-Pipelines-Operator-v11"></a>
 # Openshift Pipelines Operator v1.1
 
 Cloudpak for Applications V4.3 installs Openshift Pipelines Operator V1.1, which uses Tekton Pipelines 0.14.3. 
