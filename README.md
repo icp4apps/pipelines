@@ -126,7 +126,7 @@ spec:
 
 ## Pipeline Details
 
-Two pipelines are provided as part of the tech preview. Their functions are similar to the eventing pipelines for Appsody projects, but are desgiend for devfile projects:
+Two pipelines are provided as part of the tech preview. Their functions are similar to the eventing pipelines for Appsody projects, but are designed for devfile projects:
 
 - The pull request pipeline, with name `build-pl-<digest>`, performs a test build from a pull request to master branch.
 - The push and deploy pipeline, with name `build-push-promote-pl-<digest>`, performs a build, pushes the resulting image to an image registry, and optionally deployes the resulting image.
