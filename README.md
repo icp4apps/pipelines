@@ -3,6 +3,7 @@
 - [Pipelines](#Pipelines)
 - [Odo Tech Preview](#Odo-Tech-Preview)
 - [Openshift Pipelines Operator v1.1](#Openshift-Pipelines-Operator-v11)
+- [Proof of RedHat Certification](#Proof-Of-RedHat-Certification)
 
 # Pipelines
 
@@ -166,3 +167,7 @@ For a list of breaking changes, search for "Backwards incompatible changes" for 
              - name: <name>
                description: <description>
      ```
+
+# Proof Of RedHat Certification
+
+- pipeline-utils: https://connect.redhat.com/project/5893861/view
