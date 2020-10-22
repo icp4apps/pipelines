@@ -37,7 +37,35 @@ spec:
   - name: build
     image: $(params.BUILDER_IMAGE)
     workingDir: $(workspaces.source.path)
-    command: ['buildah', '--storage-driver=$(params.STORAGE_DRIVER)', 'bud', '--format=$(params.FORMAT)', '--tls-verify=$(params.TLSVERIFY)', '--no-cache', '-f', '$(params.DOCKERFILE)', '-t', '$(params.IMAGE)', '$(params.CONTEXT)']
+    command: ["/bin/bash"]
+    args:
+      - -c
+      - |
+        # Configure image registry access in the container by adding it to the insecure registry list or enabling TLS verification
+        # by adding it to the trust store based on OpenShift cluster resource configuration.
+        echo "[INFO] Running the script /scripts/image_registry_access_setup.sh ...."
+        /scripts/image_registry_access_setup.sh
+        retVal=$?
+        if [ $retVal -ne 0 ]
+        then
+           echo "[ERROR] The script failed(/scripts/image_registry_access_setup.sh)" >&2
+           exit $retVal
+        fi
+        echo "[INFO] Completed setup for image registry access."
+
+        # Docker does not support upper case characters in the image name.  Github does not have this restriction.
+        # So lowercase the image name if it has any upper case characters.
+        DOCKER_IMAGE_URL_LOWERCASE=$( /scripts/imageurl_imagename_lowercase.sh -u "$(params.IMAGE)" )
+        retVal=$?
+        if [ $retVal -ne 0 ]
+        then
+           echo "[ERROR] The script failed(/scripts/imageurl_imagename_lowercase.sh) Reason: $DOCKER_IMAGE_URL_LOWERCASE" >&2
+           exit $retVal
+        fi
+        echo "[INFO] Application image URL = $DOCKER_IMAGE_URL_LOWERCASE"
+
+        buildah --storage-driver=$(params.STORAGE_DRIVER) bud --format=$(params.FORMAT) --no-cache -f $(params.DOCKERFILE) -t ${DOCKER_IMAGE_URL_LOWERCASE} $(params.CONTEXT)
+
     volumeMounts:
     - name: varlibcontainers
       mountPath: /var/lib/containers
@@ -47,7 +75,35 @@ spec:
   - name: push
     image: $(params.BUILDER_IMAGE)
     workingDir: $(workspaces.source.path)
-    command: ['buildah', '--storage-driver=$(params.STORAGE_DRIVER)', 'push', '--tls-verify=$(params.TLSVERIFY)', '--digestfile', '$(workspaces.source.path)/image-digest', '$(params.IMAGE)', 'docker://$(params.IMAGE)']
+    command: ["/bin/bash"]
+    args:
+      - -c
+      - |
+        # Configure image registry access in the container by adding it to the insecure registry list or enabling TLS verification
+        # by adding it to the trust store based on OpenShift cluster resource configuration.
+        echo "[INFO] Running the script /scripts/image_registry_access_setup.sh ...."
+        /scripts/image_registry_access_setup.sh
+        retVal=$?
+        if [ $retVal -ne 0 ]
+        then
+           echo "[ERROR] The script failed(/scripts/image_registry_access_setup.sh)" >&2
+           exit $retVal
+        fi
+        echo "[INFO] Completed setup for image registry access."
+
+        # Docker does not support upper case characters in the image name.  Github does not have this restriction.
+        # So lowercase the image name if it has any upper case characters.
+        DOCKER_IMAGE_URL_LOWERCASE=$( /scripts/imageurl_imagename_lowercase.sh -u "$(params.IMAGE)" )
+        retVal=$?
+        if [ $retVal -ne 0 ]
+        then
+           echo "[ERROR] The script failed(/scripts/imageurl_imagename_lowercase.sh) Reason: $DOCKER_IMAGE_URL_LOWERCASE" >&2
+           exit $retVal
+        fi
+        echo "[INFO] Application image URL = $DOCKER_IMAGE_URL_LOWERCASE"
+
+        buildah --storage-driver=$(params.STORAGE_DRIVER) push --digestfile $(workspaces.source.path)/image-digest ${DOCKER_IMAGE_URL_LOWERCASE} docker://${DOCKER_IMAGE_URL_LOWERCASE}
+
     volumeMounts:
     - name: varlibcontainers
       mountPath: /var/lib/containers
