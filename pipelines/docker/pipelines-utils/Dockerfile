@@ -14,7 +14,6 @@ LABEL "url"="https://www.ibm.com/cloud/cloud-pak-for-applications"
 LABEL "com.redhat.license_terms"="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI"
 LABEL "license"="Apache License"
 
-ENV KUBE_CLIENT_VERSION="11.0.0"
 
 # Updating the images for package installer
 RUN yum update --disablerepo=* --enablerepo=ubi-8-appstream \
@@ -37,4 +36,4 @@ COPY /packages/*.rpm /packages/
 COPY /licenses/LICENSE /licenses/
 
 # Executing the script to install the utility tools
-RUN  /scripts/install_utilities.sh
+RUN  /scripts/install_utilities.sh 
