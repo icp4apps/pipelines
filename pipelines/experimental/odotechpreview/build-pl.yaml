@@ -10,6 +10,8 @@ spec:
   params:
     - name: repo-url
       type: string
+    - name: gitrevision
+      type: string
     - name: image
       type: string
     - name: devfile
@@ -27,6 +29,8 @@ spec:
       params:
         - name: url
           value: $(params.repo-url)
+        - name: revision
+          value: $(params.gitrevision)
         - name: subdirectory
           value: repo
     - name: fetch-dockerfile

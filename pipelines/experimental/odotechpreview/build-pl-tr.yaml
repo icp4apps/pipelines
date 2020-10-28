@@ -117,6 +117,8 @@ spec:
       params:
         - name: repo-url
           value: $(params.gitrepositoryurl)
+        - name: gitrevision
+          value: $(params.gitrevision)
         - name: image
           value: $(params.webhooks-tekton-docker-registry)/$(params.webhooks-tekton-git-repo)
         - name: devfile
