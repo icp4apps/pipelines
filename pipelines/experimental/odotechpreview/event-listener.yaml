@@ -12,7 +12,7 @@ spec:
       ref: build-push-promote-pl-@Digest@-push-binding
     interceptors:
     - cel:
-        filter: 'body["webhooks-tekton-event-type"] == "push" && body["webhooks-tekton-git-branch"] == "master"'
+        filter: 'body["webhooks-tekton-event-type"] == "push" && body["webhooks-tekton-git-branch"] in [ "master", "main"]'
     name: kabanero-push-event
     template:
       apiversion: v1alpha1
@@ -23,7 +23,7 @@ spec:
       ref: build-pl-@Digest@-pullrequest-binding
     interceptors:
     - cel:
-        filter: 'body["webhooks-tekton-event-type"] == "pull_request" && body["webhooks-tekton-git-branch"] != "master" && (body["action"] == "opened" || body["action"] == "synchronize" ) '
+        filter: 'body["webhooks-tekton-event-type"] == "pull_request" && !(body["webhooks-tekton-git-branch"] in ["master", "main"]) && (body["action"] == "opened" || body["action"] == "synchronize" ) '
     name: kabanero-pullrequest-event
     template:
       apiversion: v1alpha1
@@ -49,4 +49,4 @@ spec:
     name: kabanero-monitor-task-event
     interceptors:
     - cel:
-        filter: 'body["webhooks-tekton-event-type"] == "pull_request" && body["webhooks-tekton-git-branch"] != "master" && (body["action"] == "opened" || body["action"] == "synchronize" ) '
+        filter: 'body["webhooks-tekton-event-type"] == "pull_request" && !(body["webhooks-tekton-git-branch"] in ["master", "main"]) && (body["action"] == "opened" || body["action"] == "synchronize" ) '
