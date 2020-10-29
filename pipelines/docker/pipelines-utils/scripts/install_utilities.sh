@@ -46,6 +46,8 @@ yum localinstall -y glibc-utils.rpm
 wait
 yum localinstall -y oniguruma.rpm
 wait
+dnf install -y glib2-devel libslirp-devel libcap-devel libseccomp-devel 
+wait 
 yum localinstall -y slirp4netns.rpm
 wait
 yum localinstall -y ostree-devel.rpm
