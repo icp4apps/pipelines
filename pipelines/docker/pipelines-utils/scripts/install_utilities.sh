@@ -19,6 +19,7 @@ yum install -y python2
 yum install -y python3
 yum install -y git
 yum install -y wget
+
 wait
 
 pip2 install --no-cache-dir -U passlib
@@ -46,7 +47,7 @@ yum localinstall -y glibc-utils.rpm
 wait
 yum localinstall -y oniguruma.rpm
 wait
-dnf install -y glib2-devel libslirp-devel libcap-devel libseccomp-devel 
+yum localinstall -y libslirp.rpm
 wait 
 yum localinstall -y slirp4netns.rpm
 wait
