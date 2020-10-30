@@ -19,6 +19,7 @@ yum install -y python2
 yum install -y python3
 yum install -y git
 yum install -y wget
+
 wait
 
 pip2 install --no-cache-dir -U passlib
@@ -46,6 +47,8 @@ yum localinstall -y glibc-utils.rpm
 wait
 yum localinstall -y oniguruma.rpm
 wait
+yum localinstall -y libslirp.rpm
+wait 
 yum localinstall -y slirp4netns.rpm
 wait
 yum localinstall -y ostree-devel.rpm
@@ -98,49 +101,59 @@ wait
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
+all_installed=true
 
 echo "Are the dependencies installed?"
 if ! [ -x "$(command -v sudo)" ]; then
+  all_installed=false
   echo -e "sudo: ${RED}FALSE${NC}"
 else
 	echo -e "sudo: ${GREEN}TRUE${NC}"
 fi
 if ! [ -x "$(command -v appsody)" ]; then
+  all_installed=false
   echo -e "appsody: ${RED}FALSE${NC}"
 else
 	echo -e "appsody: ${GREEN}TRUE${NC}"
 fi
 if ! [ -x "$(command -v buildah)" ]; then
+  all_installed=false
   echo -e "buildah: ${RED}FALSE${NC}"
 else
 	echo -e "buildah: ${GREEN}TRUE${NC}"
 fi
 if ! [ -x "$(command -v kubectl)" ]; then
+  all_installed=false
   echo -e "kubectl: ${RED}FALSE${NC}"
 else
 	echo -e "kubectl: ${GREEN}TRUE${NC}"
 fi
 if ! [ -x "$(command -v python2)" ]; then
+  all_installed=false
   echo -e "python2: ${RED}FALSE${NC}"
 else
 	echo -e "python2: ${GREEN}TRUE${NC}"
 fi
 if ! [ -x "$(command -v python3)" ]; then
+  all_installed=false
   echo -e "python3: ${RED}FALSE${NC}"
 else
 	echo -e "python3: ${GREEN}TRUE${NC}"
 fi
 if ! [ -x "$(command -v git)" ]; then
+  all_installed=false
   echo -e "git: ${RED}FALSE${NC}"
 else
 	echo -e "git: ${GREEN}TRUE${NC}"
 fi
 if ! [ -x "$(command -v jq)" ]; then
+  all_installed=false
   echo -e "jq: ${RED}FALSE${NC}"
 else
 	echo -e "jq: ${GREEN}TRUE${NC}"
 fi
 if ! [ -x "$(command -v skopeo)" ]; then
+  all_installed=false
   echo -e "skopeo: ${RED}FALSE${NC}"
 else
 	echo -e "skopeo: ${GREEN}TRUE${NC}"
@@ -152,7 +165,12 @@ fi
 # fi
 
 
+
 echo -e "If any packages are marked ${RED}FALSE${NC} there was an error."
 echo "Installing and setting up dependencies completed. Packages include:"
 # echo "sudo, appsody, buildah, kubectl, python2, python3, git, jq, skopeo, gitopscli"
 echo "sudo, appsody, buildah, kubectl, python2, python3, git, jq, skopeo"
+if [ "$all_installed" = false ]; then
+  echo -e "Resolve the failed dependecies"
+  exit 1
+fi
