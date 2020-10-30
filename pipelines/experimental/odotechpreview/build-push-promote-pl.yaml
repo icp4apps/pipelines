@@ -16,6 +16,8 @@ spec:
       type: string
     - name: devfile
       type: string
+    - name: webhooks-tekton-local-deploy
+      type: string
     - name: component
       type: string
   workspaces:
