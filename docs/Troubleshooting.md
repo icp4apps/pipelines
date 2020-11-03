@@ -96,7 +96,7 @@
     
 ********
 
-## I see the error below while running the building step of a Kabanero Pipeline.The cause of this could be either of the 3 situations mentioned below before running the pipelines
+## I see the error below while running the building step of a Pipeline.The cause of this could be either of the 3 situations mentioned below before running the pipelines
 
     - The user has created a secret for github but not patched that secret onto the service account used by the PipelineRun or TaskRun in question, or
     - The user has not created a secret for github, but has tried to patch the relevant service account, or

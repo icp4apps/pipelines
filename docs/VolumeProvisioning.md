@@ -1,4 +1,4 @@
-# Volume Provisioning for Kabanero Pipelineruns
+# Volume Provisioning for Pipelineruns
 
 Tekton pipelines require a configured volume that is used by the framework to share data across tasks. The build task, which uses Buildah, also requires a volume mount. The pipelinerun should be creating a [Persistent Volume Claim PVC](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#introduction) with a requirement for 5 Gi persistent volume.
 
@@ -8,10 +8,10 @@ Tekton pipelines require a configured volume that is used by the framework to sh
 oc login <master node IP>:8443
 ```
 
-2. Clone the [kabanero-pipeplines repo](https://github.com/kabanero-io/kabanero-pipelines.git)
+2. Clone the [pipeplines repo](https://github.com/icp4apps/pipelines.git)
 
 ```
-git clone https://github.com/kabanero-io/kabanero-pipelines
+git clone https://github.com/icp4apps/pipelines
 ```
 
 ## Static Persistent Volumes Example
@@ -27,9 +27,9 @@ oc apply -f nfs-pv.yaml -n kabanero
 
 If your cluster is running in a public cloud, dynamic volume provisioning is an easier option. For more information on how to use storage class and configMap through Tekton for dynamic provisioning of the persistent volumes	, see the document [How are resources shared between tasks](https://github.com/tektoncd/pipeline/blob/master/docs/install.md#how-are-resources-shared-between-tasks).
 
-Your persistent volume must be configured in accordance with your cloud provider’s default [storage class](https://kubernetes.io/docs/concepts/storage/storage-classes/#introduction). Below are some of the recommendations for dynamic volume provisioning while running Kabanero pipelines.
+Your persistent volume must be configured in accordance with your cloud provider’s default [storage class](https://kubernetes.io/docs/concepts/storage/storage-classes/#introduction). Below are some of the recommendations for dynamic volume provisioning while running pipelines.
 
-1. For running the Kabanero pipelines you should have your [storage class](https://kubernetes.io/docs/concepts/storage/storage-classes/#introduction) to be configured to provision atleast 5Gi of persistent volume dynamically.
+1. For running the pipelines you should have your [storage class](https://kubernetes.io/docs/concepts/storage/storage-classes/#introduction) to be configured to provision atleast 5Gi of persistent volume dynamically.
 
 2. The storage class used for dynamic provisioning should have the reclaiming policy of `Recycle` if you have the requirement to run multiple pipelines and that too frequently. 
 Usually if the `default` [storage class](https://kubernetes.io/docs/concepts/storage/storage-classes/#introduction) is configured in the public cloud the reclaiming policy is `delete` and in that case your pipelines might create a new volume for each run, which increases your pipeline run execution time. To know more about the reclaiming policy go [here](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#reclaiming)
@@ -45,7 +45,7 @@ cd ../common
 oc create -f ibmcloud-ibmc-block.yaml
 ```
 
-2. Tell the Tekton to use your storage class via [configMap](https://github.com/tektoncd/pipeline/blob/master/docs/install.md#how-are-resources-shared-between-tasks), so when the kabanero pipelines are run, tekton can use your custom storage class to provision persistent volumes.
+2. Tell the Tekton to use your storage class via [configMap](https://github.com/tektoncd/pipeline/blob/master/docs/install.md#how-are-resources-shared-between-tasks), so when the pipelines are run, tekton can use your custom storage class to provision persistent volumes.
 
 example : Use the configmap as per below command and apply it.
 
