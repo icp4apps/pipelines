@@ -92,7 +92,7 @@ spec:
     - name: scan-image
       securityContext:
         privileged: true
-      image: icp4apps/scanner@sha256:82b979de485fc5990d41b8b4acc2aeee2211bd26b0f03374f5657773ae4148f9
+      image: icp4apps/scanner@sha256:6c65a83880fbd1ce448bdb7601ab3c299af34ba248938e53da34559ae446a7c3
       command: ['/bin/bash']
       args:
         - -c
