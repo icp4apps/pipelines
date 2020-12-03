@@ -37,3 +37,6 @@ COPY /licenses/LICENSE /licenses/
 
 # Executing the script to install the utility tools
 RUN  /scripts/install_utilities.sh 
+
+# remove metacopy- older linux version do not support - soln from : https://github.com/containers/podman/issues/3560
+RUN sed -i s/,metacopy=on// /etc/containers/storage.conf
