@@ -19,6 +19,33 @@ yum install -y python2
 yum install -y python3
 yum install -y git
 yum install -y wget
+yum install -y pcre2
+yum install -y sqlite-libs
+yum install -y libgcrypt
+yum install -y libsolv
+yum install -y libcurl
+yum install -y curl
+yum install -y expat
+yum install -y libpcap
+yum install -y libssh
+yum install -y gnutls
+yum install -y libarchive
+yum install -y gnupg2
+yum install -y vim-minimal
+yum install -y cryptsetup-libs
+yum install -y openssl-libs
+yum install -y cyrus-sasl-lib
+yum install -y libxml2-devel
+yum install -y python3-libxml2
+yum install -y python3-libs
+yum install -y platform-python
+yum install -y glibc-common
+yum install -y glibc-utils
+yum install -y glibc-minimal-langpack
+yum install -y glibc
+yum install -y systemd-libs
+yum install -y systemd
+yum install -y systemd-pam
 
 wait
 
@@ -45,7 +72,7 @@ cd packages
 
 yum localinstall -y glibc-utils.rpm
 wait
-yum localinstall -y oniguruma.rpm
+yum install -y oniguruma
 wait
 yum localinstall -y libslirp.rpm
 wait 
