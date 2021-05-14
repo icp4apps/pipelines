@@ -21,11 +21,15 @@
         # ignoreDigests #
         #################
         ignore_digest () {
+           TLS_NO_VERIFY=""
+           if [[ $INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE == *"image-registry.openshift-image-registry.svc:5000"* ]]; then
+               TLS_NO_VERIFY="--tls-verify=false"
+           fi
         
            # Retrieve the stack id/name from the application image       
-           STACK_NAME=$( skopeo inspect docker://$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE  | jq -r '.Labels."dev.appsody.stack.id"' ) 
+           STACK_NAME=$( skopeo inspect $TLS_NO_VERIFY docker://$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE  | jq -r '.Labels."dev.appsody.stack.id"' ) 
            # Retrieve the version from the application image
-           STACK_VERSION=$( skopeo inspect docker://$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE  | jq -r '.Labels."dev.appsody.stack.version"' ) 
+           STACK_VERSION=$( skopeo inspect $TLS_NO_VERIFY docker://$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE  | jq -r '.Labels."dev.appsody.stack.version"' ) 
            # Retrieve all the version of the stack
            CLUSTER_STACK_VERSIONS=$( kubectl get stack $STACK_NAME  -o json | jq -r '.status.versions[].version?' )
         
@@ -47,12 +51,16 @@
         ################################
         active_strict_digest () {
  
+           TLS_NO_VERIFY=""
+           if [[ $INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE == *"image-registry.openshift-image-registry.svc:5000"* ]]; then
+               TLS_NO_VERIFY="--tls-verify=false"
+           fi
            # Retrieve the stack id/name from the application image       
-           STACK_NAME=$( skopeo inspect docker://$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE  | jq -r '.Labels."dev.appsody.stack.id"' ) 
+           STACK_NAME=$( skopeo inspect $TLS_NO_VERIFY docker://$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE  | jq -r '.Labels."dev.appsody.stack.id"' ) 
            # Retrieve the version from the application image
-           STACK_VERSION=$( skopeo inspect docker://$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE  | jq -r '.Labels."dev.appsody.stack.version"' ) 
+           STACK_VERSION=$( skopeo inspect $TLS_NO_VERIFY docker://$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE  | jq -r '.Labels."dev.appsody.stack.version"' ) 
            # Retrieve the version from the application image
-           STACK_DIGEST=$( skopeo inspect docker://$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE  | jq -r '.Labels."dev.appsody.stack.digest"' ) 
+           STACK_DIGEST=$( skopeo inspect $TLS_NO_VERIFY docker://$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE  | jq -r '.Labels."dev.appsody.stack.digest"' ) 
            # TODO: Temporary until Appsody is able to correctly set this label
            if [ -z "$STACK_DIGEST" ] || [ "$STACK_DIGEST" == "null" ]; then\
               echo "$WARNING The image label 'dev.appsody.stack.digest' has not been set for image: $INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE, unable to enforce stackPolicy"

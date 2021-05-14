@@ -267,7 +267,13 @@
         fi
 
         # Get the target sha256 digest from the image registry. Use the proper credentials depending on what was passed to us
-        TARGET_DIGEST=$( skopeo inspect docker://"$IMAGE_REGISTRY_HOST"/"$PROJECT"/"$STACK_NAME":"$VERSION" | jq '.Digest' )
+        TLS_NO_VERIFY=""
+        if [[ $IMAGE_REGISTRY_HOST == *"image-registry.openshift-image-registry.svc"* ]]; then
+            TLS_NO_VERIFY="--tls-verify=false"
+        fi
+        echo "$INFO Getting target digest: skopeo inspect $TLS_NO_VERIFY docker://$IMAGE_REGISTRY_HOST/$PROJECT/$STACK_NAME:$VERSION | jq '.Digest' )"
+      
+        TARGET_DIGEST=$( skopeo inspect $TLS_NO_VERIFY docker://"$IMAGE_REGISTRY_HOST"/"$PROJECT"/"$STACK_NAME":"$VERSION" | jq '.Digest' )
 
         if [ -z "$TARGET_DIGEST" ]; then
            echo "$APPSODY_CONFIG specifies a stack version of $VERSION , but the image registry does not contain a version tagged with $VERSION, and fails stackPolicy validation."
