@@ -180,7 +180,12 @@ spec:
         if [[ -z $REPO ]] || [[ $OUTPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE != $REPO/* ]]; then
            echo "[INFO] Signature will not be generated. The signed image repository is not set or does not match the target registry."
            echo "[INFO] Pushing image to registry..."
-           buildah push "$OUTPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE" "docker://$OUTPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE"
+           TLS_NO_VERIFY=""
+           if [[ "$OUTPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE" == *"image-registry.openshift-image-registry.svc:5000"* ]]; then
+               TLS_NO_VERIFY="--tls-verify=false"
+           fi
+           echo "[INFO] buildah push $TLS_VERIFY $OUTPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE docker://$OUTPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE"
+           buildah push $TLS_NO_VERIFY "$OUTPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE" "docker://$OUTPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE"
         else
            echo "[INFO] Signature will be generated."
            #importing RSA secret key, then extract an e-mail address from it.
