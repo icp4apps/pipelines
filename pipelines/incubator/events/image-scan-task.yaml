@@ -81,7 +81,12 @@ spec:
           fi
 
           echo "Pulling image docker://$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE"
-          buildah from docker://$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE
+          TLS_NO_VERIFY=""
+          if [[ "$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE" == *"image-registry.openshift-image-registry.svc:5000"* ]]; then
+              TLS_NO_VERIFY="--tls-verify=false"
+          fi
+          echo "[INFO] buildah from $TLS_NO_VERIFY docker://$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE"
+          buildah from $TLS_NO_VERIFY docker://$INPUTS_RESOURCE_DOCKER_IMAGE_URL_LOWERCASE
           echo $(buildah mount $(buildah containers -q)) > /var/lib/containers/rootfs.txt
           mountDir=$(cat /var/lib/containers/rootfs.txt)
           echo ""
