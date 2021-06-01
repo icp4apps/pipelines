@@ -53,3 +53,7 @@ RUN  /scripts/install_utilities.sh
 
 # remove metacopy- older linux version do not support - soln from : https://github.com/containers/podman/issues/3560
 RUN sed -i s/,metacopy=on// /etc/containers/storage.conf
+
+RUN echo "" >> /etc/containers/registries.conf
+RUN echo "[registries.insecure]" >> /etc/containers/registries.conf
+RUN echo "registries = []" >> /etc/containers/registries.conf
